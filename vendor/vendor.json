@@ -1,0 +1,74 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "amrfOy96U1cKMVjqjMAWLAb7Mdo=",
+			"path": "github.com/dvsekhvalnov/jose2go",
+			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
+			"revisionTime": "2017-06-29T14:38:15Z"
+		},
+		{
+			"checksumSHA1": "X38qrRzL+rPyO4xZhm16ftyLkXs=",
+			"path": "github.com/dvsekhvalnov/jose2go/aes",
+			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
+			"revisionTime": "2017-06-29T14:38:15Z"
+		},
+		{
+			"checksumSHA1": "RbRzJ9jDZJnCUKbJJy7e2OSTUro=",
+			"path": "github.com/dvsekhvalnov/jose2go/arrays",
+			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
+			"revisionTime": "2017-06-29T14:38:15Z"
+		},
+		{
+			"checksumSHA1": "uQqU76qm0Q57HnnCEp56r43jGaU=",
+			"path": "github.com/dvsekhvalnov/jose2go/base64url",
+			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
+			"revisionTime": "2017-06-29T14:38:15Z"
+		},
+		{
+			"checksumSHA1": "h/QQYYL/tuXhe8ELZvyk1wKrZz4=",
+			"path": "github.com/dvsekhvalnov/jose2go/compact",
+			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
+			"revisionTime": "2017-06-29T14:38:15Z"
+		},
+		{
+			"checksumSHA1": "gjXFjcEV/LZG4U/lgm/CVYvvWOg=",
+			"path": "github.com/dvsekhvalnov/jose2go/kdf",
+			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
+			"revisionTime": "2017-06-29T14:38:15Z"
+		},
+		{
+			"checksumSHA1": "o1OtVBn2DVAG07K6teBpkUNjqkM=",
+			"path": "github.com/dvsekhvalnov/jose2go/keys/ecc",
+			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
+			"revisionTime": "2017-06-29T14:38:15Z"
+		},
+		{
+			"checksumSHA1": "gAEKTUiQk9JoMonf1G508SXpLw4=",
+			"path": "github.com/dvsekhvalnov/jose2go/padding",
+			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
+			"revisionTime": "2017-06-29T14:38:15Z"
+		},
+		{
+			"checksumSHA1": "VGkGZuxgsZinkFJjqkk4gpS0104=",
+			"origin": "github.com/lox/go-keychain",
+			"path": "github.com/keybase/go-keychain",
+			"revision": "efeae48c0b272ac15a6c0b53129285b2b0ed828d",
+			"revisionTime": "2017-08-10T04:31:23Z"
+		},
+		{
+			"checksumSHA1": "V/quM7+em2ByJbWBLOsEwnY3j/Q=",
+			"path": "github.com/mitchellh/go-homedir",
+			"revision": "b8bc1bf767474819792c23f32d8286a45736f1c6",
+			"revisionTime": "2016-12-03T19:45:07Z"
+		},
+		{
+			"checksumSHA1": "bA2gANkJBx2Br/p5GKYdhyGo3Pg=",
+			"path": "golang.org/x/crypto/ssh/terminal",
+			"revision": "173ce04bfaf66c7bb0fa9d5c0bfd93e773909dbd",
+			"revisionTime": "2015-08-12T04:21:58Z"
+		}
+	],
+	"rootPath": "github.com/99designs/keyring"
+}
