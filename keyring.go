@@ -45,7 +45,8 @@ type Item struct {
 	Data        []byte
 	Label       string
 	Description string
-	TrustSelf   bool
+	// macOS only, set false if you want the password prompt to appear every time
+	TrustSelf bool
 }
 
 // Keyring provides the uniform interface over the underlying backends
