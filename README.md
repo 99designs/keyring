@@ -15,10 +15,35 @@ Currently Keyring supports the following backends
 
 ## Usage
 
-Something on how to use it or link to godocs
+The short version of how to use keyring is shown below.
+
+```go
+  ring, _ := keyring.Open("example", keyring.KeychainBackend)
+
+  _ = ring.Set(keyring.Item{
+    Key: "foo",
+    Data: []byte("secret-bar"),
+  })
+
+	i, _ := ring.Get("foo")
+
+	fmt.Printf("%s", i.Data)
+```
+
+For more detail on the API please check [the keyring godocs](https://godoc.org/github.com/99designs/keyring)
 
 ## Development & Contributing
 
-  * TODO local dev
-  * TODO branch/PR ettiquette
+Contributions to the keyring package are most welcome from engineers of all backgrounds and skill levels. In particular the addition of extra backends across popular operating systems would be appreciated.
 
+This project will adhere to the [Go Community Code of Conduct](https://golang.org/conduct) in the github provided discussion spaces, with the moderators being the 99designs engineering leadership team, currently lead by [John Barton](mailto:john.barton@99designs.com).
+
+To make a contribution:
+
+  * Fork the repository
+  * Make your changes on the fork
+  * Submit a pull request back to this repo with a clear description of the problem you're solving
+  * Ensure your PR passes all current (and new) tests
+  * Ideally verify that [aws-vault](https://github.com/99designs/aws-vault) works with your changes (optional)
+
+...and we'll do our best to get your work merged in
