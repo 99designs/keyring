@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "bD0oh9rHp+3ElrjWtaou004QTt8=",
+			"path": "github.com/aulanov/go.dbus",
+			"revision": "25c3068a42a0b50b877953fb249dbcffc6bd1bca",
+			"revisionTime": "2015-07-29T23:15:27Z"
+		},
+		{
 			"checksumSHA1": "amrfOy96U1cKMVjqjMAWLAb7Mdo=",
 			"path": "github.com/dvsekhvalnov/jose2go",
 			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
@@ -49,6 +55,18 @@
 			"path": "github.com/dvsekhvalnov/jose2go/padding",
 			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
 			"revisionTime": "2017-06-29T14:38:15Z"
+		},
+		{
+			"checksumSHA1": "LIpi0bDVAl3e0Xza8gohpKkH0+I=",
+			"path": "github.com/godbus/dbus",
+			"revision": "bd29ed602e2cf4207ebcabcd530259169e4289ba",
+			"revisionTime": "2017-07-07T17:46:28Z"
+		},
+		{
+			"checksumSHA1": "IZJQgK68T/tXTTezcUs5yLzmkTQ=",
+			"path": "github.com/gsterjov/go-libsecret",
+			"revision": "a6f4afe4910cad8688db3e0e9b9ac92ad22d54e1",
+			"revisionTime": "2016-10-01T09:47:33Z"
 		},
 		{
 			"checksumSHA1": "VGkGZuxgsZinkFJjqkk4gpS0104=",
