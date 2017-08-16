@@ -151,5 +151,6 @@ func deleteKeychain(path string, t *testing.T) {
 }
 
 func tempPath() string {
+	// TODO make filename configurable
 	return filepath.Join(os.TempDir(), fmt.Sprintf("aws-vault-test-%d.keychain", time.Now().UnixNano()))
 }
