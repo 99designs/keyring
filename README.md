@@ -18,16 +18,16 @@ Currently Keyring supports the following backends
 The short version of how to use keyring is shown below.
 
 ```go
-  ring, _ := keyring.Open("example", keyring.KeychainBackend)
+ring, _ := keyring.Open("example", keyring.KeychainBackend)
 
-  _ = ring.Set(keyring.Item{
-    Key: "foo",
-    Data: []byte("secret-bar"),
-  })
+_ = ring.Set(keyring.Item{
+	Key: "foo",
+	Data: []byte("secret-bar"),
+})
 
-	i, _ := ring.Get("foo")
+i, _ := ring.Get("foo")
 
-	fmt.Printf("%s", i.Data)
+fmt.Printf("%s", i.Data)
 ```
 
 For more detail on the API please check [the keyring godocs](https://godoc.org/github.com/99designs/keyring)
