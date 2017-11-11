@@ -14,6 +14,7 @@ const (
 	SecretServiceBackend BackendType = "secret-service"
 	KeychainBackend      BackendType = "keychain"
 	KWalletBackend       BackendType = "kwallet"
+	WinCredBackend       BackendType = "wincred"
 	FileBackend          BackendType = "file"
 )
 
