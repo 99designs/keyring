@@ -27,6 +27,15 @@ type Config struct {
 
 	// FileDir is the directory that keyring files are stored in, ~ is resolved to home dir
 	FileDir string
+
+	// KWalletServiceName is the name of the service that KWallet uses
+	KWalletServiceName string
+
+	// KWalletAppID is the application id for KWallet
+	KWalletAppID string
+
+	// KWalletFolder is the folder for KWallet
+	KWalletFolder string
 }
 
 func NewConfig() Config {
@@ -35,6 +44,7 @@ func NewConfig() Config {
 
 func (cfg Config) WithServiceName(name string) Config {
 	cfg.KeychainName = name
+	cfg.KWalletServiceName = name
 	return cfg
 }
 
