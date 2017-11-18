@@ -72,7 +72,7 @@ func (k *kwalletKeyring) Get(key string) (Item, error) {
 		return Item{}, err
 	}
 
-	data, err := k.wallet.ReadEntry(k.handle, FOLDER, key, k.appID)
+	data, err := k.wallet.ReadEntry(k.handle, k.folder, key, k.appID)
 	if err != nil {
 		return Item{}, err
 	}
@@ -97,7 +97,7 @@ func (k *kwalletKeyring) Set(item Item) error {
 		return err
 	}
 
-	err = k.wallet.WriteEntry(k.handle, FOLDER, item.Key, data, k.appID)
+	err = k.wallet.WriteEntry(k.handle, k.folder, item.Key, data, k.appID)
 	if err != nil {
 		return err
 	}

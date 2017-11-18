@@ -25,9 +25,12 @@ var supportedBackends = map[BackendType]opener{}
 func SupportedBackends() []BackendType {
 	b := []BackendType{}
 	for k := range supportedBackends {
-		b = append(b, k)
+		if k != FileBackend {
+			b = append(b, k)
+		}
 	}
-	return b
+	// make sure FileBackend is last
+	return append(b, FileBackend)
 }
 
 type opener func(cfg Config) (Keyring, error)

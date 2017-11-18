@@ -36,6 +36,9 @@ type Config struct {
 
 	// KWalletFolder is the folder for KWallet
 	KWalletFolder string
+
+	// LibSecretCollectionName is the name collection in secret-service
+	LibSecretCollectionName string
 }
 
 func NewConfig() Config {
@@ -45,6 +48,7 @@ func NewConfig() Config {
 func (cfg Config) WithServiceName(name string) Config {
 	cfg.KeychainName = name
 	cfg.KWalletServiceName = name
+	cfg.LibSecretCollectionName = name
 	return cfg
 }
 

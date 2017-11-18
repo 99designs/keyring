@@ -6,9 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	jose "github.com/dvsekhvalnov/jose2go"
+	homedir "github.com/mitchellh/go-homedir"
 )
 
 func init() {
@@ -32,13 +34,14 @@ func (k *fileKeyring) resolveDir() (string, error) {
 
 	dir := k.dir
 
-	// if dir == "" {
-	// 	home, err := homedir.Dir()
-	// 	if err != nil {
-	// 		return "", err
-	// 	}
-	// 	dir = filepath.Join(home, "/.awsvault/keys/")
-	// }
+	// expand tilde for home directory
+	if strings.HasPrefix(dir, "~") {
+		home, err := homedir.Dir()
+		if err != nil {
+			return "", err
+		}
+		dir = strings.Replace(dir, "~", home, 1)
+	}
 
 	stat, err := os.Stat(dir)
 	if os.IsNotExist(err) {
