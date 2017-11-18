@@ -9,49 +9,36 @@ import (
 	"time"
 
 	jose "github.com/dvsekhvalnov/jose2go"
-	"github.com/mitchellh/go-homedir"
-	"golang.org/x/crypto/ssh/terminal"
 )
 
-type passwordFunc func(string) (string, error)
-
-func terminalPrompt(prompt string) (string, error) {
-	if password := os.Getenv("AWS_VAULT_FILE_PASSPHRASE"); password != "" {
-		return password, nil
-	}
-
-	fmt.Printf("%s: ", prompt)
-	b, err := terminal.ReadPassword(int(os.Stdin.Fd()))
-	if err != nil {
-		return "", err
-	}
-	fmt.Println()
-	return string(b), nil
-}
-
 func init() {
-	supportedBackends[FileBackend] = opener(func(name string) (Keyring, error) {
+	supportedBackends[FileBackend] = opener(func(cfg Config) (Keyring, error) {
 		return &fileKeyring{
-			PasswordFunc: terminalPrompt,
+			passwordFunc: cfg.FilePasswordFunc,
 		}, nil
 	})
 }
 
 type fileKeyring struct {
-	Dir          string
-	PasswordFunc passwordFunc
+	dir          string
+	passwordFunc PromptFunc
 	password     string
 }
 
-func (k *fileKeyring) dir() (string, error) {
-	dir := k.Dir
-	if dir == "" {
-		home, err := homedir.Dir()
-		if err != nil {
-			return "", err
-		}
-		dir = filepath.Join(home, "/.awsvault/keys/")
+func (k *fileKeyring) resolveDir() (string, error) {
+	if k.dir == "" {
+		return "", fmt.Errorf("No directory provided for file keyring")
 	}
+
+	dir := k.dir
+
+	// if dir == "" {
+	// 	home, err := homedir.Dir()
+	// 	if err != nil {
+	// 		return "", err
+	// 	}
+	// 	dir = filepath.Join(home, "/.awsvault/keys/")
+	// }
 
 	stat, err := os.Stat(dir)
 	if os.IsNotExist(err) {
@@ -64,13 +51,13 @@ func (k *fileKeyring) dir() (string, error) {
 }
 
 func (k *fileKeyring) unlock() error {
-	dir, err := k.dir()
+	dir, err := k.resolveDir()
 	if err != nil {
 		return err
 	}
 
 	if k.password == "" {
-		pwd, err := k.PasswordFunc(fmt.Sprintf("Enter passphrase to unlock %s", dir))
+		pwd, err := k.passwordFunc(fmt.Sprintf("Enter passphrase to unlock %s", dir))
 		if err != nil {
 			return err
 		}
@@ -81,7 +68,7 @@ func (k *fileKeyring) unlock() error {
 }
 
 func (k *fileKeyring) Get(key string) (Item, error) {
-	dir, err := k.dir()
+	dir, err := k.resolveDir()
 	if err != nil {
 		return Item{}, err
 	}
@@ -114,7 +101,7 @@ func (k *fileKeyring) Set(i Item) error {
 		return err
 	}
 
-	dir, err := k.dir()
+	dir, err := k.resolveDir()
 	if err != nil {
 		return err
 	}
@@ -135,7 +122,7 @@ func (k *fileKeyring) Set(i Item) error {
 }
 
 func (k *fileKeyring) Remove(key string) error {
-	dir, err := k.dir()
+	dir, err := k.resolveDir()
 	if err != nil {
 		return err
 	}
@@ -144,7 +131,7 @@ func (k *fileKeyring) Remove(key string) error {
 }
 
 func (k *fileKeyring) Keys() ([]string, error) {
-	dir, err := k.dir()
+	dir, err := k.resolveDir()
 	if err != nil {
 		return nil, err
 	}

@@ -7,10 +7,8 @@ import (
 
 func TestFileKeyringSetWhenEmpty(t *testing.T) {
 	k := &fileKeyring{
-		Dir: os.TempDir(),
-		PasswordFunc: passwordFunc(func(string) (string, error) {
-			return "no more secrets", nil
-		}),
+		dir:          os.TempDir(),
+		passwordFunc: fixedStringPrompt("no more secrets"),
 	}
 	item := Item{Key: "llamas", Data: []byte("llamas are great")}
 
