@@ -15,8 +15,8 @@ const (
 
 func init() {
 	supportedBackends[KWalletBackend] = opener(func(cfg Config) (Keyring, error) {
-		if cfg.KWalletServiceName == "" {
-			cfg.KWalletServiceName = "kdewallet"
+		if cfg.ServiceName == "" {
+			cfg.ServiceName = "kdewallet"
 		}
 
 		if cfg.KWalletAppID == "" {
@@ -34,7 +34,7 @@ func init() {
 
 		return &kwalletKeyring{
 			wallet: *wallet,
-			name:   cfg.KWalletServiceName,
+			name:   cfg.ServiceName,
 			appID:  cfg.KWalletAppID,
 			folder: cfg.KWalletFolder,
 		}, nil

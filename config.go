@@ -4,10 +4,10 @@ type Config struct {
 	// Backends is an ordered list of backends to try. Nil means all available
 	Backends []BackendType
 
-	// KeychainServiceName is the name of the keychain service used
-	KeychainServiceName string
+	// ServiceName is a generic service name that is used by backends that support the concept
+	ServiceName string
 
-	// MacOSKeychainNameKeychainName is the name of the macOS keychain that is used.
+	// MacOSKeychainNameKeychainName is the name of the macOS keychain that is used
 	KeychainName string
 
 	// KeychainTrustApplication is whether the calling application should be trusted by default by items
@@ -28,9 +28,6 @@ type Config struct {
 	// FileDir is the directory that keyring files are stored in, ~ is resolved to home dir
 	FileDir string
 
-	// KWalletServiceName is the name of the service that KWallet uses
-	KWalletServiceName string
-
 	// KWalletAppID is the application id for KWallet
 	KWalletAppID string
 
@@ -41,18 +38,7 @@ type Config struct {
 	LibSecretCollectionName string
 }
 
-func NewConfig() Config {
-	return Config{}
-}
-
-func (cfg Config) WithServiceName(name string) Config {
-	cfg.KeychainName = name
-	cfg.KWalletServiceName = name
-	cfg.LibSecretCollectionName = name
-	return cfg
-}
-
-func (cfg Config) chooseBackend() (BackendType, error) {
+func chooseBackend(cfg Config) (BackendType, error) {
 	for _, backend := range cfg.Backends {
 		if _, ok := supportedBackends[backend]; ok {
 			return backend, nil

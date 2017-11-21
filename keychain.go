@@ -23,7 +23,7 @@ type keychain struct {
 func init() {
 	supportedBackends[KeychainBackend] = opener(func(cfg Config) (Keyring, error) {
 		return &keychain{
-			service:      cfg.KeychainServiceName,
+			service:      cfg.ServiceName,
 			path:         cfg.KeychainName + ".keychain",
 			passwordFunc: cfg.KeychainPasswordFunc,
 		}, nil

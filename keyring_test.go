@@ -7,9 +7,9 @@ import (
 )
 
 func ExampleOpen() {
+	// Use the best keyring implementation for your operating system
 	kr, err := keyring.Open(keyring.Config{
-		KeychainName: "my-keychain",
-		Backends:     keyring.SupportedBackends(),
+		ServiceName: "my-service",
 	})
 
 	v, err := kr.Get("llamas")
