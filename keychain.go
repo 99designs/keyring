@@ -93,7 +93,7 @@ func (k *keychain) Set(item Item) error {
 		kcItem.UseKeychain(kc)
 	}
 
-	if k.isSynchronizable {
+	if k.isSynchronizable && !item.KeychainNotSynchronizable {
 		kcItem.SetSynchronizable(gokeychain.SynchronizableYes)
 	}
 
@@ -103,7 +103,7 @@ func (k *keychain) Set(item Item) error {
 
 	kcItem.SetAccess(&gokeychain.Access{
 		Label:         item.Label,
-		SelfUntrusted: !k.isTrusted,
+		SelfUntrusted: !k.isTrusted || item.KeychainNotTrustApplication,
 	})
 
 	debugf("Adding service=%q, label=%q, account=%q to osx keychain %s", k.service, item.Label, item.Key, k.path)

@@ -54,6 +54,10 @@ type Item struct {
 	Data        []byte
 	Label       string
 	Description string
+
+	// Backend specific config
+	KeychainNotTrustApplication bool
+	KeychainNotSynchronizable   bool
 }
 
 // Keyring provides the uniform interface over the underlying backends
