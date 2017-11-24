@@ -8,8 +8,6 @@ import (
 	"log"
 )
 
-type BackendType string
-
 // All currently supported secure storage backends
 const (
 	InvalidBackend       BackendType = "invalid"
@@ -19,10 +17,12 @@ const (
 	FileBackend          BackendType = "file"
 )
 
+type BackendType string
+
 var supportedBackends = map[BackendType]opener{}
 
-// SupportedBackends provides a slice of all available backend keys on the current OS
-func SupportedBackends() []BackendType {
+// AvailableBackends provides a slice of all available backend keys on the current OS
+func AvailableBackends() []BackendType {
 	b := []BackendType{}
 	for k := range supportedBackends {
 		if k != FileBackend {
@@ -35,14 +35,17 @@ func SupportedBackends() []BackendType {
 
 type opener func(cfg Config) (Keyring, error)
 
-// Open will ask the underlying backend to authenticate and provide access to the underlying store
+// Open will open a specific keyring backend
 func Open(cfg Config) (Keyring, error) {
-	backend, err := cfg.chooseBackend()
-	if err != nil {
-		return nil, err
+	if cfg.AllowedBackends == nil {
+		cfg.AllowedBackends = AvailableBackends()
 	}
-
-	return supportedBackends[backend](cfg)
+	for _, backend := range cfg.AllowedBackends {
+		if opener, ok := supportedBackends[backend]; ok {
+			return opener(cfg)
+		}
+	}
+	return nil, ErrNoAvailImpl
 }
 
 // Item is a thing stored on the keyring

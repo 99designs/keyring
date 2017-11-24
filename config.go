@@ -1,8 +1,8 @@
 package keyring
 
 type Config struct {
-	// Backends is an ordered list of backends to try. Nil means all available
-	Backends []BackendType
+	// AllowedBackends is a whitelist of backend providers that can be used. Nil means all available.
+	AllowedBackends []BackendType
 
 	// ServiceName is a generic service name that is used by backends that support the concept
 	ServiceName string
@@ -36,13 +36,4 @@ type Config struct {
 
 	// LibSecretCollectionName is the name collection in secret-service
 	LibSecretCollectionName string
-}
-
-func chooseBackend(cfg Config) (BackendType, error) {
-	for _, backend := range cfg.Backends {
-		if _, ok := supportedBackends[backend]; ok {
-			return backend, nil
-		}
-	}
-	return InvalidBackend, ErrNoAvailImpl
 }
