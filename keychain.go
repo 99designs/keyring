@@ -22,11 +22,14 @@ type keychain struct {
 
 func init() {
 	supportedBackends[KeychainBackend] = opener(func(cfg Config) (Keyring, error) {
-		return &keychain{
+		kc := &keychain{
 			service:      cfg.ServiceName,
-			path:         cfg.KeychainName + ".keychain",
 			passwordFunc: cfg.KeychainPasswordFunc,
-		}, nil
+		}
+		if cfg.KeychainName != "" {
+			kc.path = cfg.KeychainName + ".keychain"
+		}
+		return kc, nil
 	})
 }
 
