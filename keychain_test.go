@@ -16,9 +16,10 @@ func TestOSXKeychainKeyringSet(t *testing.T) {
 	defer deleteKeychain(path, t)
 
 	k := &keychain{
-		path:       path,
-		passphrase: "llamas",
-		service:    "test",
+		path:         path,
+		passwordFunc: fixedStringPrompt("test password"),
+		service:      "test",
+		isTrusted:    true,
 	}
 
 	item := Item{
@@ -26,7 +27,6 @@ func TestOSXKeychainKeyringSet(t *testing.T) {
 		Label:       "Arbitrary label",
 		Description: "A freetext description",
 		Data:        []byte("llamas are great"),
-		TrustSelf:   true,
 	}
 
 	if err := k.Set(item); err != nil {
@@ -56,9 +56,10 @@ func TestOSXKeychainKeyringOverwrite(t *testing.T) {
 	defer deleteKeychain(path, t)
 
 	k := &keychain{
-		path:       path,
-		passphrase: "llamas",
-		service:    "test",
+		path:         path,
+		passwordFunc: fixedStringPrompt("test password"),
+		service:      "test",
+		isTrusted:    true,
 	}
 
 	item1 := Item{
@@ -66,7 +67,6 @@ func TestOSXKeychainKeyringOverwrite(t *testing.T) {
 		Label:       "Arbitrary label",
 		Description: "A freetext description",
 		Data:        []byte("llamas are ok"),
-		TrustSelf:   true,
 	}
 
 	if err := k.Set(item1); err != nil {
@@ -87,7 +87,6 @@ func TestOSXKeychainKeyringOverwrite(t *testing.T) {
 		Label:       "Arbitrary label",
 		Description: "A freetext description",
 		Data:        []byte("llamas are great"),
-		TrustSelf:   true,
 	}
 
 	if err := k.Set(item2); err != nil {
@@ -109,18 +108,18 @@ func TestOSXKeychainKeyringListKeys(t *testing.T) {
 	defer deleteKeychain(path, t)
 
 	k := &keychain{
-		path:       path,
-		passphrase: "llamas",
-		service:    "test",
+		path:         path,
+		service:      "test",
+		passwordFunc: fixedStringPrompt("test password"),
+		isTrusted:    true,
 	}
 
 	keys := []string{"key1", "key2", "key3"}
 
 	for _, key := range keys {
 		item := Item{
-			Key:       key,
-			Data:      []byte("llamas are great"),
-			TrustSelf: true,
+			Key:  key,
+			Data: []byte("llamas are great"),
 		}
 
 		if err := k.Set(item); err != nil {

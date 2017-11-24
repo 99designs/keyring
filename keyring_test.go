@@ -1,25 +1,21 @@
 package keyring_test
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/99designs/keyring"
 )
 
-func ExampleKeyringGet() {
-	// Imagine instead this was a keyring.Open("example", keyring.KeychainBackend)
-	var ring keyring.Keyring = keyring.NewArrayKeyring([]keyring.Item{
-		keyring.Item{
-			Key:  "foo",
-			Data: []byte("secret-bar"),
-		},
+func ExampleOpen() {
+	// Use the best keyring implementation for your operating system
+	kr, err := keyring.Open(keyring.Config{
+		ServiceName: "my-service",
 	})
 
-	i, err := ring.Get("foo")
-
-	if err == nil {
-		fmt.Printf("%s", i.Data)
+	v, err := kr.Get("llamas")
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	// Output: secret-bar
+	log.Printf("llamas was %v", v)
 }
