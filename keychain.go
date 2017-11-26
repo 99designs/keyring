@@ -43,12 +43,8 @@ func (k *keychain) Get(key string) (Item, error) {
 	query.SetReturnData(true)
 
 	if k.path != "" {
-		kc, err := k.createOrOpen()
-		if err != nil {
-			return Item{}, err
-		}
-
-		query.SetMatchSearchList(kc)
+		// When we are querying, we don't create by default
+		query.SetMatchSearchList(gokeychain.NewWithPath(k.path))
 	}
 
 	debugf("Querying keychain for service=%q, account=%q, keychain=%q", k.service, key, k.path)
@@ -77,6 +73,7 @@ func (k *keychain) Get(key string) (Item, error) {
 func (k *keychain) Set(item Item) error {
 	var kc gokeychain.Keychain
 
+	// when we are setting a value, we create or open
 	if k.path != "" {
 		var err error
 		kc, err = k.createOrOpen()
@@ -107,10 +104,19 @@ func (k *keychain) Set(item Item) error {
 
 	isTrusted := k.isTrusted && !item.KeychainNotTrustApplication
 
-	kcItem.SetAccess(&gokeychain.Access{
-		Label:         item.Label,
-		SelfUntrusted: !isTrusted,
-	})
+	if isTrusted {
+		debugf("Keychain item trusts aws-vault")
+		kcItem.SetAccess(&gokeychain.Access{
+			Label:               item.Label,
+			TrustedApplications: nil,
+		})
+	} else {
+		debugf("Keychain item doesn't trust aws-vault")
+		kcItem.SetAccess(&gokeychain.Access{
+			Label:               item.Label,
+			TrustedApplications: []string{},
+		})
+	}
 
 	debugf("Adding service=%q, label=%q, account=%q, trusted=%v to osx keychain %q", k.service, item.Label, item.Key, isTrusted, k.path)
 
@@ -194,6 +200,7 @@ func (k *keychain) createOrOpen() (gokeychain.Keychain, error) {
 	debugf("Checking keychain status")
 	err := kc.Status()
 	if err == nil {
+		debugf("Keychain status returned nil, keychain exists")
 		return kc, nil
 	} else {
 		debugf("Keychain status returned error: %v", err)
