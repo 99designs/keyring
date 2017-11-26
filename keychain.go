@@ -51,12 +51,15 @@ func (k *keychain) Get(key string) (Item, error) {
 		query.SetMatchSearchList(kc)
 	}
 
+	debugf("Querying keychain for service=%q, account=%q, keychain=%q", k.service, key, k.path)
 	results, err := gokeychain.QueryItem(query)
 	if err == gokeychain.ErrorItemNotFound || len(results) == 0 {
+		debugf("No results found")
 		return Item{}, ErrKeyNotFound
 	}
 
 	if err != nil {
+		debugf("Error: %#v", err)
 		return Item{}, err
 	}
 
@@ -67,6 +70,7 @@ func (k *keychain) Get(key string) (Item, error) {
 		Description: results[0].Description,
 	}
 
+	debugf("Found item %q", results[0].Label)
 	return item, nil
 }
 
@@ -101,12 +105,15 @@ func (k *keychain) Set(item Item) error {
 		kcItem.SetAccessible(gokeychain.AccessibleWhenUnlocked)
 	}
 
+	isTrusted := k.isTrusted && !item.KeychainNotTrustApplication
+
 	kcItem.SetAccess(&gokeychain.Access{
 		Label:         item.Label,
-		SelfUntrusted: !k.isTrusted || item.KeychainNotTrustApplication,
+		SelfUntrusted: !isTrusted,
 	})
 
-	debugf("Adding service=%q, label=%q, account=%q to osx keychain %s", k.service, item.Label, item.Key, k.path)
+	debugf("Adding service=%q, label=%q, account=%q, trusted=%v to osx keychain %q", k.service, item.Label, item.Key, isTrusted, k.path)
+
 	if err := gokeychain.AddItem(kcItem); err == gokeychain.ErrorDuplicateItem {
 		debugf("Item already exists, deleting")
 		delItem := gokeychain.NewItem()
@@ -122,6 +129,7 @@ func (k *keychain) Set(item Item) error {
 			return fmt.Errorf("Error deleting existing item: %v", err)
 		}
 
+		debugf("Adding item again")
 		return gokeychain.AddItem(kcItem)
 	}
 
@@ -144,7 +152,7 @@ func (k *keychain) Remove(key string) error {
 		item.SetMatchSearchList(kc)
 	}
 
-	log.Printf("Removing keychain item service=%q, account=%q from osx keychain %q", k.service, key, k.path)
+	log.Printf("Removing keychain item service=%q, account=%q, keychain %q", k.service, key, k.path)
 	return gokeychain.DeleteItem(item)
 }
 
@@ -165,11 +173,13 @@ func (k *keychain) Keys() ([]string, error) {
 		query.SetMatchSearchList(kc)
 	}
 
+	debugf("Querying keychain for service=%q, keychain=%q", k.service, k.path)
 	results, err := gokeychain.QueryItem(query)
 	if err != nil {
 		return nil, err
 	}
 
+	debugf("Found %d results", len(results))
 	accountNames := make([]string, len(results))
 	for idx, r := range results {
 		accountNames[idx] = r.Account
@@ -181,9 +191,12 @@ func (k *keychain) Keys() ([]string, error) {
 func (k *keychain) createOrOpen() (gokeychain.Keychain, error) {
 	kc := gokeychain.NewWithPath(k.path)
 
+	debugf("Checking keychain status")
 	err := kc.Status()
 	if err == nil {
 		return kc, nil
+	} else {
+		debugf("Keychain status returned error: %v", err)
 	}
 
 	if err != gokeychain.ErrorNoSuchKeychain {
