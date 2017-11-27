@@ -70,10 +70,9 @@
 		},
 		{
 			"checksumSHA1": "U25ZTSzG/RPAXdaPYUlmNXixOWk=",
-			"origin": "github.com/lox/go-keychain",
 			"path": "github.com/keybase/go-keychain",
-			"revision": "4a728d973eacc9506a8bc6e680b83648c2f2dc2c",
-			"revisionTime": "2017-11-26T02:58:50Z"
+			"revision": "e39a0e22a1cbdbbcdc24b8556df51019c30df068",
+			"revisionTime": "2017-11-27T20:25:45Z"
 		},
 		{
 			"checksumSHA1": "V/quM7+em2ByJbWBLOsEwnY3j/Q=",
