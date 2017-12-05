@@ -3,8 +3,10 @@
 package keyring
 
 import (
+	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	gokeychain "github.com/keybase/go-keychain"
 )
@@ -14,6 +16,7 @@ type keychain struct {
 	service string
 
 	passwordFunc PromptFunc
+	clock        func() time.Time
 
 	isSynchronizable         bool
 	isAccessibleWhenUnlocked bool
@@ -160,6 +163,43 @@ func (k *keychain) Remove(key string) error {
 
 	log.Printf("Removing keychain item service=%q, account=%q, keychain %q", k.service, key, k.path)
 	return gokeychain.DeleteItem(item)
+}
+
+func (k *keychain) IsExpired(key string) (bool, error) {
+	clock := k.clock
+	if clock == nil {
+		clock = time.Now
+	}
+
+	query := gokeychain.NewItem()
+	query.SetSecClass(gokeychain.SecClassGenericPassword)
+	query.SetService(k.service)
+	query.SetMatchLimit(gokeychain.MatchLimitAll)
+	query.SetReturnAttributes(true)
+
+	if k.path != "" {
+		kc := gokeychain.NewWithPath(k.path)
+
+		if err := kc.Status(); err != nil {
+			return false, err
+		}
+
+		query.SetMatchSearchList(kc)
+	}
+
+	debugf("Querying keychain for service=%q, account=%q, keychain=%q", k.service, key, k.path)
+	results, err := gokeychain.QueryItem(query)
+	if err == gokeychain.ErrorItemNotFound || len(results) == 0 {
+		debugf("No results found")
+		return false, ErrKeyNotFound
+	}
+
+	if err != nil {
+		debugf("Error: %#v", err)
+		return false, err
+	}
+
+	return false, errors.New("Not implemented")
 }
 
 func (k *keychain) Keys() ([]string, error) {

@@ -6,6 +6,7 @@ package keyring
 import (
 	"errors"
 	"log"
+	"time"
 )
 
 // All currently supported secure storage backends
@@ -56,6 +57,9 @@ type Item struct {
 	Label       string
 	Description string
 
+	// Options supported by some backends
+	Expires time.Time
+
 	// Backend specific config
 	KeychainNotTrustApplication bool
 	KeychainNotSynchronizable   bool
@@ -71,6 +75,12 @@ type Keyring interface {
 	Remove(key string) error
 	// Provides a slice of all keys stored on the keyring
 	Keys() ([]string, error)
+}
+
+// KeyringWithExpiry is a Keyring that also provides access to Expiry without authentication
+type KeyringWithExpiry interface {
+	// IsExpired checks if a given Item has expired
+	IsExpired(key string) (bool, error)
 }
 
 // ErrNoAvailImpl is returned by Open when a backend cannot be found
