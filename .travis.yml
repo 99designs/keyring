@@ -1,9 +1,12 @@
 language: go
 
-install: ./ci/install.sh
+install:
+ - go get github.com/kardianos/govendor
+ - govendor status
 
 go:
   - 1.8
+  - 1.9
 
 os:
   - linux
