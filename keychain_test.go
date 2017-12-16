@@ -137,6 +137,50 @@ func TestOSXKeychainKeyringListKeys(t *testing.T) {
 	}
 }
 
+func TestOSXKeychainKeyringHandlesExpiry(t *testing.T) {
+	Debug = true
+
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	// set a fixed time
+	clock := time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)
+
+	k := &keychain{
+		path:         path,
+		service:      "test",
+		passwordFunc: fixedStringPrompt("test password"),
+		isTrusted:    false,
+		clock:        func() time.Time { return clock },
+	}
+
+	item := Item{
+		Key:     "test",
+		Data:    []byte("llamas are great"),
+		Expires: clock.Add(time.Hour),
+	}
+
+	if err := k.Set(item); err != nil {
+		t.Fatal(err)
+	}
+
+	var kwe KeyringWithExpiry = k
+
+	k.clock = func() time.Time {
+		// add 10 hours, past our expiry date
+		return clock.Add(time.Hour * 10)
+	}
+
+	expired, err := kwe.IsExpired("test")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if !expired {
+		t.Fatal("Expected item to be expired")
+	}
+}
+
 func deleteKeychain(path string, t *testing.T) {
 	if _, err := os.Stat(path); os.IsExist(err) {
 		os.Remove(path)
