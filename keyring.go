@@ -6,18 +6,22 @@ package keyring
 import (
 	"errors"
 	"log"
+	"sort"
 )
 
 // All currently supported secure storage backends
-const (
-	InvalidBackend       BackendType = "invalid"
-	SecretServiceBackend BackendType = "secret-service"
-	KeychainBackend      BackendType = "keychain"
-	KWalletBackend       BackendType = "kwallet"
-	FileBackend          BackendType = "file"
+var (
+	InvalidBackend       = BackendType{Name: "invalid"}
+	SecretServiceBackend = BackendType{Name: "secret-service", Priority: 3}
+	KeychainBackend      = BackendType{Name: "keychain", Priority: 1}
+	KWalletBackend       = BackendType{Name: "kwallet", Priority: 3}
+	FileBackend          = BackendType{Name: "file", Priority: 2}
 )
 
-type BackendType string
+type BackendType struct {
+	Name     string
+	Priority int
+}
 
 var supportedBackends = map[BackendType]opener{}
 
@@ -25,12 +29,15 @@ var supportedBackends = map[BackendType]opener{}
 func AvailableBackends() []BackendType {
 	b := []BackendType{}
 	for k := range supportedBackends {
-		if k != FileBackend {
-			b = append(b, k)
-		}
+		b = append(b, k)
 	}
-	// make sure FileBackend is last
-	return append(b, FileBackend)
+
+	// sort by priority, lowest wins
+	sort.Slice(b, func(i, j int) bool {
+		return b[i].Priority > b[j].Priority
+	})
+
+	return b
 }
 
 type opener func(cfg Config) (Keyring, error)

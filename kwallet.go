@@ -4,6 +4,7 @@ package keyring
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/aulanov/go.dbus"
 )
@@ -14,13 +15,11 @@ const (
 )
 
 func init() {
-	// silently fail if dbus isn't available
-	_, err := dbus.SessionBus()
-	if err != nil {
-		return
-	}
-
 	supportedBackends[KWalletBackend] = opener(func(cfg Config) (Keyring, error) {
+		if err != nil {
+			return nil, fmt.Errorf("Unable to access dbus: %v", err)
+		}
+
 		if cfg.ServiceName == "" {
 			cfg.ServiceName = "kdewallet"
 		}

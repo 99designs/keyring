@@ -11,13 +11,12 @@ import (
 )
 
 func init() {
-	// silently fail if dbus isn't available
-	_, err := dbus.SessionBus()
-	if err != nil {
-		return
-	}
-
 	supportedBackends[SecretServiceBackend] = opener(func(cfg Config) (Keyring, error) {
+		_, err := dbus.SessionBus()
+		if err != nil {
+			return nil, fmt.Errorf("Unable to access dbus: %v", err)
+		}
+
 		if cfg.ServiceName == "" {
 			cfg.ServiceName = "secret-service"
 		}
