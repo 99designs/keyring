@@ -139,13 +139,13 @@ func TestOSXKeychainKeyringListKeys(t *testing.T) {
 
 func deleteKeychain(path string, t *testing.T) {
 	if _, err := os.Stat(path); os.IsExist(err) {
-		os.Remove(path)
+		_ = os.Remove(path)
 	}
 
 	// Sierra introduced a -db suffix
 	dbPath := path + "-db"
 	if _, err := os.Stat(dbPath); os.IsExist(err) {
-		os.Remove(dbPath)
+		_ = os.Remove(dbPath)
 	}
 }
 
