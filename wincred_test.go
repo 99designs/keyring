@@ -1,4 +1,5 @@
 // +build windows
+
 package keyring_test
 
 import (
