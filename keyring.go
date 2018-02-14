@@ -15,6 +15,7 @@ const (
 	KeychainBackend      BackendType = "keychain"
 	KWalletBackend       BackendType = "kwallet"
 	FileBackend          BackendType = "file"
+	PassBackend          BackendType = "pass"
 )
 
 type BackendType string
