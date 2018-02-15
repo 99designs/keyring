@@ -3,6 +3,7 @@ package keyring
 import (
 	"io/ioutil"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"sort"
 	"testing"
@@ -14,24 +15,36 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 		t.Fatal(err)
 	}
 
-	gnupghome := filepath.Join(pwd, "testdata", "gnupghome")
-	os.Chmod(gnupghome, os.FileMode(int(0700)))
-	os.Setenv("GNUPGHOME", gnupghome)
-	os.Unsetenv("GPG_AGENT_INFO")
-	os.Unsetenv("GPG_TTY")
-
-	dir, err := ioutil.TempDir("", "keyring-pass-test")
+	tmpdir, err := ioutil.TempDir("", "keyring-pass-test")
 	if err != nil {
 		t.Fatal(err)
 	}
 
+	// Initialise a blank GPG homedir; import & trust the test key
+	gnupghome := filepath.Join(tmpdir, ".gnupg")
+	os.Mkdir(gnupghome, os.FileMode(int(0700)))
+	os.Setenv("GNUPGHOME", gnupghome)
+	os.Unsetenv("GPG_AGENT_INFO")
+	os.Unsetenv("GPG_TTY")
+	cmd := exec.Command("gpg", "--import", filepath.Join(pwd, "testdata", "test-gpg.key"))
+	err = cmd.Run()
+	if err != nil {
+		t.Fatal(err)
+	}
+	cmd = exec.Command("gpg", "--import-ownertrust", filepath.Join(pwd, "testdata", "test-ownertrust-gpg.txt"))
+	err = cmd.Run()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	passdir := filepath.Join(tmpdir, ".password-store")
 	k := &passKeyring{
-		dir:     dir,
+		dir:     passdir,
 		passcmd: "pass",
 		prefix:  "aws-vault/",
 	}
 
-	cmd, err := k.pass("init", "test@example.com")
+	cmd, err = k.pass("init", "test@example.com")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -42,7 +55,7 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 	}
 
 	return k, func(t *testing.T) {
-		os.RemoveAll(dir)
+		os.RemoveAll(tmpdir)
 	}
 }
 
