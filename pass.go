@@ -2,7 +2,6 @@ package keyring
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -113,7 +112,7 @@ func (k *passKeyring) Keys() ([]string, error) {
 		return keys, err
 	}
 	if !info.IsDir() {
-		return keys, errors.New(fmt.Sprintf("%s is not a directory", path))
+		return keys, fmt.Errorf("%s is not a directory", path)
 	}
 
 	files, err := ioutil.ReadDir(path)
