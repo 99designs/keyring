@@ -36,4 +36,8 @@ type Config struct {
 
 	// LibSecretCollectionName is the name collection in secret-service
 	LibSecretCollectionName string
+
+	PassDir    string
+	PassCmd    string
+	PassPrefix string
 }

@@ -13,9 +13,18 @@ import (
 
 func init() {
 	supportedBackends[PassBackend] = opener(func(cfg Config) (Keyring, error) {
-		return &passKeyring{
-			prefix: "aws-vault/",
-		}, nil
+		pass := &passKeyring{
+			passcmd: cfg.PassCmd,
+			dir:     cfg.PassDir,
+			prefix:  cfg.PassPrefix,
+		}
+		if cfg.PassCmd == "" {
+			pass.passcmd = "pass"
+		}
+		if cfg.PassDir == "" {
+			pass.dir = filepath.Join(os.Getenv("HOME"), ".password-store")
+		}
+		return pass, nil
 	})
 }
 
