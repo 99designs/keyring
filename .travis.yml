@@ -1,5 +1,8 @@
 language: go
 
+before_install:
+  - if [ $TRAVIS_OS_NAME = linux ]; then sudo apt-get install pass; else brew install pass; fi
+
 install:
   - go get github.com/kardianos/govendor
   - govendor status
