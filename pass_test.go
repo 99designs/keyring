@@ -14,7 +14,9 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 		t.Fatal(err)
 	}
 
-	os.Setenv("GNUPGHOME", filepath.Join(pwd, "testdata", "gnupghome"))
+	gnupghome := filepath.Join(pwd, "testdata", "gnupghome")
+	os.Chmod(gnupghome, os.FileMode(int(0700)))
+	os.Setenv("GNUPGHOME", gnupghome)
 	os.Unsetenv("GPG_AGENT_INFO")
 	os.Unsetenv("GPG_TTY")
 
