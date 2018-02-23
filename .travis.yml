@@ -2,7 +2,7 @@ language: go
 
 before_install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew update; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew install gnupg; fi
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew upgrade gnupg; fi
   - wget https://git.zx2c4.com/password-store/snapshot/password-store-1.7.1.tar.xz
   - tar -xJvf password-store-1.7.1.tar.xz
   - pushd password-store-1.7.1 && sudo make install PREFIX=/usr/local && popd
