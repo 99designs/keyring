@@ -9,6 +9,12 @@
 			"revisionTime": "2015-07-29T23:15:27Z"
 		},
 		{
+			"checksumSHA1": "vvFDcA+qQlBPrJjKEYQCHVBS9xQ=",
+			"path": "github.com/danieljoos/wincred",
+			"revision": "412b574fb496839b312a75fba146bd32a89001cf",
+			"revisionTime": "2017-04-09T18:24:07Z"
+		},
+		{
 			"checksumSHA1": "amrfOy96U1cKMVjqjMAWLAb7Mdo=",
 			"path": "github.com/dvsekhvalnov/jose2go",
 			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
