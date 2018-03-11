@@ -29,6 +29,9 @@ func init() {
 		if cfg.KeychainName != "" {
 			kc.path = cfg.KeychainName + ".keychain"
 		}
+		if cfg.KeychainTrustApplication {
+			kc.isTrusted = true
+		}
 		return kc, nil
 	})
 }
