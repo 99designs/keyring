@@ -13,7 +13,8 @@ type windowsKeyring struct {
 }
 
 func init() {
-	supportedBackends[WinCredBackend] = opener(func(name string) (Keyring, error) {
+	supportedBackends[WinCredBackend] = opener(func(cfg Config) (Keyring, error) {
+		name := cfg.ServiceName
 		if name == "" {
 			name = "default"
 		}
@@ -22,8 +23,6 @@ func init() {
 			name: name,
 		}, nil
 	})
-
-	DefaultBackend = WinCredBackend
 }
 
 func (k *windowsKeyring) Get(key string) (Item, error) {
