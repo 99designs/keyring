@@ -1,11 +1,15 @@
 language: go
+go_import_path: github.com/99designs/keyring
 
 install:
-  - go get github.com/kardianos/govendor
+  - go get -u github.com/kardianos/govendor
   - govendor status
 
 go:
-  - 1.9
+  - "1.8.x"
+  - "1.9.x"
+  - "1.10.x"
+  - "master"
 
 os:
   - linux
