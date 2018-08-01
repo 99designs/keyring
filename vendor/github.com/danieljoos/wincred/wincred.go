@@ -1,3 +1,5 @@
+// +build windows
+
 // Package wincred provides primitives for accessing the Windows Credentials Management API.
 // This includes functions for retrieval, listing and storage of credentials as well as Go structures for convenient access to the credential data.
 //
