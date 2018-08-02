@@ -10,11 +10,9 @@
 		},
 		{
 			"checksumSHA1": "L/9YgjZw/wyCRfIFWutYJhTpOnc=",
-			"origin": "github.com/lox/wincred",
 			"path": "github.com/danieljoos/wincred",
-			"revision": "a1a095226818a40a25afa49298f882fd668adbe6",
-			"revisionTime": "2018-08-01T22:40:07Z",
-			"tree": true
+			"revision": "ba0c7287617895e9a167cc28ccb6a8ac67b6a4f6",
+			"revisionTime": "2018-08-02T04:18:25Z"
 		},
 		{
 			"checksumSHA1": "amrfOy96U1cKMVjqjMAWLAb7Mdo=",
