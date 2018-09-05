@@ -72,6 +72,40 @@ func (k *keychain) Get(key string) (Item, error) {
 	return item, nil
 }
 
+func (k *keychain) GetMetadata(key string) (Metadata, error) {
+	query := gokeychain.NewItem()
+	query.SetSecClass(gokeychain.SecClassGenericPassword)
+	query.SetService(k.service)
+	query.SetAccount(key)
+	query.SetMatchLimit(gokeychain.MatchLimitOne)
+	query.SetReturnAttributes(true)
+	query.SetReturnData(false)
+	query.SetReturnRef(true)
+
+	debugf("Querying keychain for metadata of service=%q, account=%q, keychain=%q", k.service, key, k.path)
+	results, err := gokeychain.QueryItem(query)
+	if err == gokeychain.ErrorItemNotFound || len(results) == 0 {
+		debugf("No results found")
+		return Metadata{}, ErrKeyNotFound
+	} else if err != nil {
+		debugf("Error: %#v", err)
+		return Metadata{}, err
+	}
+
+	md := Metadata{
+		Item: &Item{
+			Key:         key,
+			Label:       results[0].Label,
+			Description: results[0].Description,
+		},
+		ModificationTime: results[0].ModificationTime,
+	}
+
+	debugf("Found metadata for %q", md.Item.Label)
+
+	return md, nil
+}
+
 func (k *keychain) Set(item Item) error {
 	var kc gokeychain.Keychain
 
