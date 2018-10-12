@@ -94,16 +94,6 @@ func (k *kwalletKeyring) Get(key string) (Item, error) {
 	return item, nil
 }
 
-// GetMetadata for kwallet returns an error indicating that it's unsupported
-// for this backend.
-//
-// The only APIs found around KWallet are for retrieving content, no indication
-// found in docs for methods to use to retrieve metadata without needing unlock
-// credentials.
-func (k *kwalletKeyring) GetMetadata(_ string) (Metadata, error) {
-	return Metadata{}, ErrMetadataNeedsCredentials
-}
-
 func (k *kwalletKeyring) Set(item Item) error {
 	err := k.openWallet()
 	if err != nil {

@@ -137,18 +137,6 @@ func (k *secretsKeyring) Get(key string) (Item, error) {
 	return ret, err
 }
 
-// GetMetadata for libsecret returns an error indicating that it's unsupported
-// for this backend.
-//
-// libsecret actually implements a metadata system which we could use, "Secret
-// Attributes"; I found no indication in documentation of anything like an
-// automatically maintained last-modification timestamp, so to use this we'd
-// need to have a SetMetadata API too.  Which we're not yet doing, but feel
-// free to contribute patches.
-func (k *secretsKeyring) GetMetadata(key string) (Metadata, error) {
-	return Metadata{}, ErrMetadataNeedsCredentials
-}
-
 func (k *secretsKeyring) Set(item Item) error {
 	err := k.openSecrets()
 	if err != nil {
