@@ -6,7 +6,6 @@ package keyring
 import (
 	"errors"
 	"log"
-	"time"
 )
 
 // All currently supported secure storage backends
@@ -68,22 +67,10 @@ type Item struct {
 	KeychainNotSynchronizable   bool
 }
 
-// Metadata is information about a thing stored on the keyring; retrieving
-// metadata must not require authentication.  The embedded Item should be
-// filled in with an empty Data field.
-// It's allowed for Item to be a nil pointer, indicating that all we
-// have is the timestamps.
-type Metadata struct {
-	*Item
-	ModificationTime time.Time
-}
-
 // Keyring provides the uniform interface over the underlying backends
 type Keyring interface {
 	// Returns an Item matching the key or ErrKeyNotFound
 	Get(key string) (Item, error)
-	// Returns the non-secret parts of an Item
-	GetMetadata(key string) (Metadata, error)
 	// Stores an Item on the keyring
 	Set(item Item) error
 	// Removes the item with matching key
@@ -97,10 +84,6 @@ var ErrNoAvailImpl = errors.New("Specified keyring backend not available")
 
 // ErrKeyNotFound is returned by Keyring Get when the item is not on the keyring
 var ErrKeyNotFound = errors.New("The specified item could not be found in the keyring.")
-
-// ErrMetadataNeedsCredentials is returned when Metadata is called against a
-// backend which requires credentials even to see metadata.
-var ErrMetadataNeedsCredentials = errors.New("The keyring backend requires credentials for metadata access")
 
 var (
 	// Whether to print debugging output
