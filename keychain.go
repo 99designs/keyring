@@ -98,7 +98,7 @@ func (k *keychain) GetMetadata(key string) (Metadata, error) {
 			Label:       results[0].Label,
 			Description: results[0].Description,
 		},
-		ModificationTime: results[0].ModificationTime,
+		ModificationTime: results[0].ModificationDate,
 	}
 
 	debugf("Found metadata for %q", md.Item.Label)
