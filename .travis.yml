@@ -1,6 +1,7 @@
 language: go
 
 before_install:
+  - go get -u github.com/kardianos/govendor
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew update; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew upgrade gnupg; fi
   - wget https://git.zx2c4.com/password-store/snapshot/password-store-1.7.1.tar.xz
@@ -12,11 +13,15 @@ install:
   - govendor status
 
 go:
-  - 1.8
-  - 1.9
+  - "1.10.x"
+  - "1.11.x"
 
 os:
   - linux
   - osx
 
-osx_image: xcode7.3
+script:
+  - govendor status
+  - diff -u <(echo -n) <(gofmt -d $(git ls-files '*.go' | grep -v ^vendor/))
+  - go vet ./...
+  - go test -race ./...

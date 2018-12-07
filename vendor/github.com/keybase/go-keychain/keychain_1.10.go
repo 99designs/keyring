@@ -1,4 +1,5 @@
 // +build darwin
+// +build go1.10
 
 package keychain
 
@@ -13,7 +14,10 @@ package keychain
 #include <Security/Security.h>
 */
 import "C"
-import "fmt"
+import (
+	"fmt"
+	"time"
+)
 
 // Error defines keychain errors
 type Error int
@@ -103,6 +107,10 @@ var (
 	DataKey = attrKey(C.CFTypeRef(C.kSecValueData))
 	// DescriptionKey is for kSecAttrDescription
 	DescriptionKey = attrKey(C.CFTypeRef(C.kSecAttrDescription))
+	// CreationDateKey is for kSecAttrCreationDate
+	CreationDateKey = attrKey(C.CFTypeRef(C.kSecAttrCreationDate))
+	// ModificationDateKey is for kSecAttrModificationDate
+	ModificationDateKey = attrKey(C.CFTypeRef(C.kSecAttrModificationDate))
 )
 
 // Synchronizable is the items synchronizable status
@@ -323,30 +331,32 @@ func UpdateItem(queryItem Item, updateItem Item) error {
 // QueryResult stores all possible results from queries.
 // Not all fields are applicable all the time. Results depend on query.
 type QueryResult struct {
-	Service     string
-	Account     string
-	AccessGroup string
-	Label       string
-	Description string
-	Data        []byte
+	Service          string
+	Account          string
+	AccessGroup      string
+	Label            string
+	Description      string
+	Data             []byte
+	CreationDate     time.Time
+	ModificationDate time.Time
 }
 
 // QueryItemRef returns query result as CFTypeRef. You must release it when you are done.
 func QueryItemRef(item Item) (C.CFTypeRef, error) {
 	cfDict, err := ConvertMapToCFDictionary(item.attr)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	defer Release(C.CFTypeRef(cfDict))
 
 	var resultsRef C.CFTypeRef
 	errCode := C.SecItemCopyMatching(cfDict, &resultsRef)
 	if Error(errCode) == ErrorItemNotFound {
-		return nil, nil
+		return 0, nil
 	}
 	err = checkError(errCode)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 	return resultsRef, nil
 }
@@ -357,7 +367,7 @@ func QueryItem(item Item) ([]QueryResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	if resultsRef == nil {
+	if resultsRef == 0 {
 		return nil, nil
 	}
 	defer Release(resultsRef)
@@ -376,7 +386,7 @@ func QueryItem(item Item) ([]QueryResult, error) {
 				}
 				results = append(results, *item)
 			} else {
-				return nil, fmt.Errorf("Invalid result type (If you SetReturnRef(true) you should use QueryItemRef directly).")
+				return nil, fmt.Errorf("invalid result type (If you SetReturnRef(true) you should use QueryItemRef directly)")
 			}
 		}
 	} else if typeID == C.CFDictionaryGetTypeID() {
@@ -424,6 +434,10 @@ func convertResult(d C.CFDictionaryRef) (*QueryResult, error) {
 				return nil, err
 			}
 			result.Data = b
+		case CreationDateKey:
+			result.CreationDate = CFDateToTime(C.CFDateRef(v))
+		case ModificationDateKey:
+			result.ModificationDate = CFDateToTime(C.CFDateRef(v))
 			// default:
 			// fmt.Printf("Unhandled key in conversion: %v = %v\n", cfTypeValue(k), cfTypeValue(v))
 		}

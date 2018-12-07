@@ -9,6 +9,12 @@
 			"revisionTime": "2015-07-29T23:15:27Z"
 		},
 		{
+			"checksumSHA1": "L/9YgjZw/wyCRfIFWutYJhTpOnc=",
+			"path": "github.com/danieljoos/wincred",
+			"revision": "ba0c7287617895e9a167cc28ccb6a8ac67b6a4f6",
+			"revisionTime": "2018-08-02T04:18:25Z"
+		},
+		{
 			"checksumSHA1": "amrfOy96U1cKMVjqjMAWLAb7Mdo=",
 			"path": "github.com/dvsekhvalnov/jose2go",
 			"revision": "9f050a91b1f2663a30613ed12d728426599e1b2d",
@@ -69,10 +75,12 @@
 			"revisionTime": "2016-10-01T09:47:33Z"
 		},
 		{
-			"checksumSHA1": "U25ZTSzG/RPAXdaPYUlmNXixOWk=",
+			"checksumSHA1": "g2igla0jOHGS1A4V/u8ucMJkL/I=",
 			"path": "github.com/keybase/go-keychain",
-			"revision": "e39a0e22a1cbdbbcdc24b8556df51019c30df068",
-			"revisionTime": "2017-11-27T20:25:45Z"
+			"revision": "f1daa725cce4049b1715f1e97d6a51880e401e70",
+			"revisionTime": "2018-10-11T01:06:23Z",
+			"version": "master",
+			"versionExact": "master"
 		},
 		{
 			"checksumSHA1": "V/quM7+em2ByJbWBLOsEwnY3j/Q=",
