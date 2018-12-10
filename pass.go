@@ -44,7 +44,7 @@ func (k *passKeyring) pass(args ...string) (*exec.Cmd, error) {
 }
 
 func (k *passKeyring) Get(key string) (Item, error) {
-	name := fmt.Sprintf("%s%s", k.prefix, key)
+	name := filepath.Join(k.prefix, key)
 	cmd, err := k.pass("show", name)
 	if err != nil {
 		return Item{}, err
@@ -67,7 +67,7 @@ func (k *passKeyring) Set(i Item) error {
 		return err
 	}
 
-	name := fmt.Sprintf("%s%s", k.prefix, i.Key)
+	name := filepath.Join(k.prefix, i.Key)
 	cmd, err := k.pass("insert", "-m", "-f", name)
 	if err != nil {
 		return err
@@ -84,7 +84,7 @@ func (k *passKeyring) Set(i Item) error {
 }
 
 func (k *passKeyring) Remove(key string) error {
-	name := fmt.Sprintf("%s%s", k.prefix, key)
+	name := filepath.Join(k.prefix, key)
 	_, err := k.pass("rm", name)
 	if err != nil {
 		return err
@@ -95,14 +95,7 @@ func (k *passKeyring) Remove(key string) error {
 
 func (k *passKeyring) Keys() ([]string, error) {
 	var keys = []string{}
-	var path = ""
-
-	// TODO This is admittedly lazy; it assumes k.prefix always _ends_ with a "/". If it doesn't, and is instead something like "a/b-" then you'll end up breaking ioutil.ReadDir later
-	if strings.Contains(k.prefix, "/") {
-		path = fmt.Sprintf("%s/%s", k.dir, k.prefix)
-	} else {
-		path = k.dir
-	}
+	var path = filepath.Join(k.dir, k.prefix)
 
 	info, err := os.Stat(path)
 	if err != nil {

@@ -38,10 +38,10 @@ type Config struct {
 	LibSecretCollectionName string
 
 	// PassDir is the pass password-store directory
-	PassDir    string
+	PassDir string
 
 	// PassCmd is the name of the pass executable
-	PassCmd    string
+	PassCmd string
 
 	// PassPrefix is a string prefix to prepend to the item path stored in pass
 	PassPrefix string
