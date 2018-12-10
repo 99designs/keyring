@@ -119,7 +119,7 @@ func TestPassKeyringKeysWhenNotEmpty(t *testing.T) {
 	}
 
 	if len(keys) != 2 {
-		t.Fatalf("Expected 0 keys, got %q", len(keys))
+		t.Fatalf("Expected 2 keys, got %d", len(keys))
 	}
 
 	sort.Strings(keys)
