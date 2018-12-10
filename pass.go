@@ -85,7 +85,12 @@ func (k *passKeyring) Set(i Item) error {
 
 func (k *passKeyring) Remove(key string) error {
 	name := filepath.Join(k.prefix, key)
-	_, err := k.pass("rm", name)
+	cmd, err := k.pass("rm", "-f", name)
+	if err != nil {
+		return err
+	}
+
+	err = cmd.Run()
 	if err != nil {
 		return err
 	}

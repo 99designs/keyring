@@ -130,3 +130,27 @@ func TestPassKeyringKeysWhenNotEmpty(t *testing.T) {
 		t.Fatalf("Expected llamas")
 	}
 }
+
+func TestPassKeyringRemove(t *testing.T) {
+	k, teardown := setup(t)
+	defer teardown(t)
+
+	item := Item{Key: "llamas", Data: []byte("llamas are great")}
+
+	if err := k.Set(item); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := k.Remove(item.Key); err != nil {
+		t.Fatalf(err.Error())
+	}
+
+	keys, err := k.Keys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(keys) != 0 {
+		t.Fatalf("Expected 0 keys, got %d", len(keys))
+	}
+}
