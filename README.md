@@ -8,6 +8,7 @@ Keyring provides utility functions for and a common interface to a range of secu
 Currently Keyring supports the following backends
   * macOS/OSX Keychain
   * Windows credential store
+  * [Pass](https://www.passwordstore.org/)
   * [Secret Service](https://github.com/99designs/aws-vault/pull/98)
   * [KDE Wallet](https://github.com/99designs/aws-vault/pull/27)
   * [Encrypted File](https://github.com/99designs/aws-vault/pull/63)

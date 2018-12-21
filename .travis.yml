@@ -1,5 +1,20 @@
 language: go
 
+before_install:
+  - go get -u github.com/kardianos/govendor
+  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then
+        brew update;
+        brew install gnu-getopt;
+        brew upgrade gnupg;
+    fi
+  - wget https://git.zx2c4.com/password-store/snapshot/password-store-1.7.1.tar.xz
+  - tar -xJvf password-store-1.7.1.tar.xz
+  - pushd password-store-1.7.1 && sudo make install PREFIX=/usr/local && popd
+
+install:
+  - go get github.com/kardianos/govendor
+  - govendor status
+
 go:
   - "1.10.x"
   - "1.11.x"
@@ -7,9 +22,6 @@ go:
 os:
   - linux
   - osx
-
-before_install:
-  - go get -u github.com/kardianos/govendor
 
 script:
   - govendor status
