@@ -24,6 +24,11 @@ func init() {
 		kc := &keychain{
 			service:      cfg.ServiceName,
 			passwordFunc: cfg.KeychainPasswordFunc,
+
+			// Set the isAccessibleWhenUnlocked to the boolean value of
+			// KeychainAccessibleWhenUnlocked is a shorthand for setting the accessibility value.
+			// See: https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlocked
+			isAccessibleWhenUnlocked: cfg.KeychainAccessibleWhenUnlocked,
 		}
 		if cfg.KeychainName != "" {
 			kc.path = cfg.KeychainName + ".keychain"
