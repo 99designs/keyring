@@ -19,6 +19,21 @@ const (
 	PassBackend          BackendType = "pass"
 )
 
+// This order makes sure the OS-specific backends
+// are picked over the more generic backends.
+var backendOrder = []BackendType{
+	// Windows
+	WinCredBackend,
+	// MacOS
+	KeychainBackend,
+	// Linux
+	SecretServiceBackend,
+	KWalletBackend,
+	// General
+	PassBackend,
+	FileBackend,
+}
+
 type BackendType string
 
 var supportedBackends = map[BackendType]opener{}
@@ -26,13 +41,13 @@ var supportedBackends = map[BackendType]opener{}
 // AvailableBackends provides a slice of all available backend keys on the current OS
 func AvailableBackends() []BackendType {
 	b := []BackendType{}
-	for k := range supportedBackends {
-		if k != FileBackend {
+	for _, k := range backendOrder {
+		_, ok := supportedBackends[k]
+		if ok {
 			b = append(b, k)
 		}
 	}
-	// make sure FileBackend is last
-	return append(b, FileBackend)
+	return b
 }
 
 type opener func(cfg Config) (Keyring, error)
