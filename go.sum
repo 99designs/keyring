@@ -1,0 +1,12 @@
+github.com/aulanov/go.dbus v0.0.0-20150729231527-25c3068a42a0/go.mod h1:VHvUx+4lTCaJ8zUnEXF4cWEc9c8lnDt4PGLwlZ+3yaM=
+github.com/danieljoos/wincred v0.0.0-20180802041825-ba0c72876178/go.mod h1:SnuYRW9lp1oJrZX/dXJqr0cPK5gYXqx3EJbmjhLdK9U=
+github.com/dvsekhvalnov/jose2go v0.0.0-20170629143815-9f050a91b1f2 h1:06e8eXJuLYsTORowj2SXjDUelB3oBrRurj91k9e+TEo=
+github.com/dvsekhvalnov/jose2go v0.0.0-20170629143815-9f050a91b1f2/go.mod h1:7BvyPhdbLxMXIYTFPLsyJRFMsKmOZnQmzh6Gb+uquuM=
+github.com/godbus/dbus v0.0.0-20170707174628-bd29ed602e2c/go.mod h1:/YcGZj5zSblfDWMMoOzV4fas9FZnQYTkDnsGvmh2Grw=
+github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c/go.mod h1:NMPJylDgVpX0MLRlPy15sqSwOFv/U1GZ2m21JhFfek0=
+github.com/keybase/go-keychain v0.0.0-20181011010623-f1daa725cce4 h1:YB7bZpTYGkkRZrUQ6mtE9Mq0lukJDSWj5XCcd5FO6Uc=
+github.com/keybase/go-keychain v0.0.0-20181011010623-f1daa725cce4/go.mod h1:JJNrCn9otv/2QP4D7SMJBgaleKpOf66PnW6F5WGNRIc=
+github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747 h1:eQox4Rh4ewJF+mqYPxCkmBAirRnPaHEB26UkNuPyjlk=
+github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747/go.mod h1:SfyaCUpYCn1Vlf4IUYiD9fPX4A5wJrkLzIz1N1q0pr0=
+golang.org/x/crypto v0.0.0-20150812105753-173ce04bfaf6 h1:4FqP4lmDcWEaI5PrBU4QZKmmcpI78cE4TXht+cZdPT4=
+golang.org/x/crypto v0.0.0-20150812105753-173ce04bfaf6/go.mod h1:6SG95UA2DQfeDnfUPMdvaQW0Q7yPrPDi9nlGo2tz2b4=
