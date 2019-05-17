@@ -4,6 +4,7 @@ package keyring
 
 import (
 	"encoding/json"
+	"os"
 
 	"github.com/aulanov/go.dbus"
 )
@@ -14,6 +15,11 @@ const (
 )
 
 func init() {
+
+	if os.Getenv("DISABLE_KWALLET") == "1" {
+		return
+	}
+
 	// silently fail if dbus isn't available
 	_, err := dbus.SessionBus()
 	if err != nil {
