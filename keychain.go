@@ -209,9 +209,9 @@ func (k *keychain) createOrOpen() (gokeychain.Keychain, error) {
 	if err == nil {
 		debugf("Keychain status returned nil, keychain exists")
 		return kc, nil
-	} else {
-		debugf("Keychain status returned error: %v", err)
 	}
+
+	debugf("Keychain status returned error: %v", err)
 
 	if err != gokeychain.ErrorNoSuchKeychain {
 		return gokeychain.Keychain{}, err

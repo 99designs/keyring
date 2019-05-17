@@ -1,5 +1,6 @@
 package keyring
 
+// Config contains configuration for keyring
 type Config struct {
 	// AllowedBackends is a whitelist of backend providers that can be used. Nil means all available.
 	AllowedBackends []BackendType

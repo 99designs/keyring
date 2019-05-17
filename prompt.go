@@ -7,6 +7,7 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
+// PromptFunc is a function used to prompt the user for a password
 type PromptFunc func(string) (string, error)
 
 func terminalPrompt(prompt string) (string, error) {

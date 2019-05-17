@@ -8,6 +8,9 @@ import (
 	"log"
 )
 
+// A BackendType is an identifier for a credential storage service
+type BackendType string
+
 // All currently supported secure storage backends
 const (
 	InvalidBackend       BackendType = "invalid"
@@ -33,8 +36,6 @@ var backendOrder = []BackendType{
 	PassBackend,
 	FileBackend,
 }
-
-type BackendType string
 
 var supportedBackends = map[BackendType]opener{}
 
@@ -99,10 +100,10 @@ type Keyring interface {
 var ErrNoAvailImpl = errors.New("Specified keyring backend not available")
 
 // ErrKeyNotFound is returned by Keyring Get when the item is not on the keyring
-var ErrKeyNotFound = errors.New("The specified item could not be found in the keyring.")
+var ErrKeyNotFound = errors.New("The specified item could not be found in the keyring")
 
 var (
-	// Whether to print debugging output
+	// Debug specifies whether to print debugging output
 	Debug bool
 )
 
