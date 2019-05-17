@@ -2,8 +2,9 @@ language: go
 go:
   - "1.12.x"
 os:
-  - linux
-  - osx
+  # - linux
+  # - osx
+  - windows
 addons:
   homebrew:
     packages:
@@ -12,7 +13,8 @@ addons:
   apt:
     packages:
     - pass
-
+env:
+  - GO111MODULE=on
 script:
   - diff -u <(echo -n) <(gofmt -d $(git ls-files '*.go'))
   - go vet ./...
