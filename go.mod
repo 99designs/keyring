@@ -4,11 +4,15 @@ go 1.12
 
 require (
 	github.com/aulanov/go.dbus v0.0.0-20150729231527-25c3068a42a0
-	github.com/danieljoos/wincred v0.0.0-20180802041825-ba0c72876178
-	github.com/dvsekhvalnov/jose2go v0.0.0-20170629143815-9f050a91b1f2
-	github.com/godbus/dbus v0.0.0-20170707174628-bd29ed602e2c
+	github.com/danieljoos/wincred v1.0.2
+	github.com/dvsekhvalnov/jose2go v0.0.0-20180829124132-7f401d37b68a
+	github.com/godbus/dbus v4.1.0+incompatible
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c
-	github.com/keybase/go-keychain v0.0.0-20181011010623-f1daa725cce4
-	github.com/mitchellh/go-homedir v0.0.0-20161203194507-b8bc1bf76747
-	golang.org/x/crypto v0.0.0-20150812105753-173ce04bfaf6
+	github.com/keybase/go-keychain v0.0.0-20190423185029-8441f7257eb1
+	github.com/kr/pretty v0.1.0 // indirect
+	github.com/mitchellh/go-homedir v1.1.0
+	github.com/stretchr/objx v0.2.0 // indirect
+	golang.org/x/crypto v0.0.0-20190513172903-22d7a77e9e5f
+	golang.org/x/sys v0.0.0-20190516110030-61b9204099cb // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
