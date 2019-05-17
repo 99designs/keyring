@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"github.com/aulanov/go.dbus"
+	"github.com/godbus/dbus"
 )
 
 const (

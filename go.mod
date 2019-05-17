@@ -3,7 +3,6 @@ module github.com/99designs/keyring
 go 1.12
 
 require (
-	github.com/aulanov/go.dbus v0.0.0-20150729231527-25c3068a42a0
 	github.com/danieljoos/wincred v1.0.2
 	github.com/dvsekhvalnov/jose2go v0.0.0-20180829124132-7f401d37b68a
 	github.com/godbus/dbus v4.1.0+incompatible
