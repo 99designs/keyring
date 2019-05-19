@@ -13,7 +13,7 @@ type BackendType string
 
 // All currently supported secure storage backends
 const (
-	InvalidBackend       BackendType = "invalid"
+	InvalidBackend       BackendType = ""
 	SecretServiceBackend BackendType = "secret-service"
 	KeychainBackend      BackendType = "keychain"
 	KWalletBackend       BackendType = "kwallet"
