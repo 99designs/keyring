@@ -9,7 +9,8 @@ import (
 )
 
 type windowsKeyring struct {
-	name string
+	name   string
+	prefix string
 }
 
 func init() {
@@ -19,8 +20,14 @@ func init() {
 			name = "default"
 		}
 
+		prefix := cfg.WinCredPrefix
+		if prefix == "" {
+			prefix = "keyring"
+		}
+
 		return &windowsKeyring{
-			name: name,
+			name:   name,
+			prefix: prefix,
 		}, nil
 	})
 }
@@ -75,5 +82,5 @@ func (k *windowsKeyring) Keys() ([]string, error) {
 }
 
 func (k *windowsKeyring) credentialName(key string) string {
-	return "aws-vault:" + k.name + ":" + key
+	return k.prefix + ":" + k.name + ":" + key
 }

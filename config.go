@@ -46,4 +46,7 @@ type Config struct {
 
 	// PassPrefix is a string prefix to prepend to the item path stored in pass
 	PassPrefix string
+
+	// WinCredPrefix is a string prefix to prepend to the key name
+	WinCredPrefix string
 }
