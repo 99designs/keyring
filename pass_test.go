@@ -41,7 +41,7 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 	k := &passKeyring{
 		dir:     passdir,
 		passcmd: "pass",
-		prefix:  "aws-vault",
+		prefix:  "keyring",
 	}
 
 	cmd, err = k.pass("init", "test@example.com")
