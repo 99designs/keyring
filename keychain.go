@@ -3,6 +3,7 @@
 package keyring
 
 import (
+	"errors"
 	"fmt"
 
 	gokeychain "github.com/keybase/go-keychain"
@@ -128,22 +129,32 @@ func (k *keychain) Set(item Item) error {
 	debugf("Adding service=%q, label=%q, account=%q, trusted=%v to osx keychain %q", k.service, item.Label, item.Key, isTrusted, k.path)
 
 	if err := gokeychain.AddItem(kcItem); err == gokeychain.ErrorDuplicateItem {
-		debugf("Item already exists, deleting")
-		delItem := gokeychain.NewItem()
-		delItem.SetSecClass(gokeychain.SecClassGenericPassword)
-		delItem.SetService(k.service)
-		delItem.SetAccount(item.Key)
+		debugf("Item already exists, updating")
+		queryItem := gokeychain.NewItem()
+		queryItem.SetSecClass(gokeychain.SecClassGenericPassword)
+		queryItem.SetService(k.service)
+		queryItem.SetAccount(item.Key)
+		queryItem.SetMatchLimit(gokeychain.MatchLimitOne)
+		queryItem.SetReturnAttributes(true)
 
 		if k.path != "" {
-			delItem.SetMatchSearchList(kc)
+			queryItem.SetMatchSearchList(kc)
 		}
 
-		if err = gokeychain.DeleteItem(delItem); err != nil {
-			return fmt.Errorf("Error deleting existing item: %v", err)
+		results, err := gokeychain.QueryItem(queryItem)
+		if err != nil {
+			return fmt.Errorf("Failed to query keychain: %v", err)
+		}
+		if len(results) == 0 {
+			return errors.New("no results")
 		}
 
-		debugf("Adding item again")
-		return gokeychain.AddItem(kcItem)
+		// Don't call SetAccess() as this will cause multiple prompts on update, even when we are not updating the AccessList
+		kcItem.SetAccess(nil)
+
+		if err := gokeychain.UpdateItem(queryItem, kcItem); err != nil {
+			return fmt.Errorf("Failed to update item in keychain: %v", err)
+		}
 	}
 
 	return nil
