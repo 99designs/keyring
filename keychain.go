@@ -112,13 +112,13 @@ func (k *keychain) Set(item Item) error {
 	isTrusted := k.isTrusted && !item.KeychainNotTrustApplication
 
 	if isTrusted {
-		debugf("Keychain item trusts aws-vault")
+		debugf("Keychain item trusts keyring")
 		kcItem.SetAccess(&gokeychain.Access{
 			Label:               item.Label,
 			TrustedApplications: nil,
 		})
 	} else {
-		debugf("Keychain item doesn't trust aws-vault")
+		debugf("Keychain item doesn't trust keyring")
 		kcItem.SetAccess(&gokeychain.Access{
 			Label:               item.Label,
 			TrustedApplications: []string{},

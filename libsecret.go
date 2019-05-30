@@ -128,7 +128,7 @@ func (k *secretsKeyring) Get(key string) (Item, error) {
 		return Item{}, err
 	}
 
-	// pack the secret into the aws-vault item
+	// pack the secret into the item
 	var ret Item
 	if err = json.Unmarshal(secret.Value, &ret); err != nil {
 		return Item{}, err
