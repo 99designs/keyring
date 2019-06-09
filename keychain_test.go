@@ -9,6 +9,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	gokeychain "github.com/keybase/go-keychain"
 )
 
 func TestOSXKeychainKeyringSet(t *testing.T) {
@@ -103,7 +105,26 @@ func TestOSXKeychainKeyringOverwrite(t *testing.T) {
 	}
 }
 
-func TestOSXKeychainKeyringListKeys(t *testing.T) {
+func TestOSXKeychainKeyringListKeysWhenEmpty(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:         path,
+		service:      "test",
+		passwordFunc: fixedStringPrompt("test password"),
+		isTrusted:    true,
+	}
+
+	_, err := k.Keys()
+	// TODO: we should consider making a generic package error like keyring.ErrNoKeyChain instead of letting
+	//       the go-keychain lib's internal errors leak through. We do this for a few other error types.
+	if err != gokeychain.ErrorNoSuchKeychain {
+		t.Fatal("expected gokeychain.ErrorNoSuchKeychain")
+	}
+}
+
+func TestOSXKeychainKeyringListKeysWhenNotEmpty(t *testing.T) {
 	path := tempPath()
 	defer deleteKeychain(path, t)
 
@@ -146,6 +167,104 @@ func deleteKeychain(path string, t *testing.T) {
 	dbPath := path + "-db"
 	if _, err := os.Stat(dbPath); os.IsExist(err) {
 		_ = os.Remove(dbPath)
+	}
+}
+
+func TestOSXKeychainGetKeyWhenEmpty(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:         path,
+		passwordFunc: fixedStringPrompt("test password"),
+		service:      "test",
+		isTrusted:    true,
+	}
+
+	_, err := k.Get("no-such-key")
+	if err != ErrKeyNotFound {
+		t.Fatal("expected ErrKeyNotFound")
+	}
+}
+
+func TestOSXKeychainGetKeyWhenNotEmpty(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:         path,
+		passwordFunc: fixedStringPrompt("test password"),
+		service:      "test",
+		isTrusted:    true,
+	}
+	item := Item{
+		Key:         "llamas",
+		Label:       "Arbitrary label",
+		Description: "A freetext description",
+		Data:        []byte("llamas are ok"),
+	}
+
+	if err := k.Set(item); err != nil {
+		t.Fatal(err)
+	}
+
+	v1, err := k.Get("llamas")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(v1.Data) != string(item.Data) {
+		t.Fatalf("Data stored was not the data retrieved: %q vs %q", v1.Data, item.Data)
+	}
+}
+
+func TestOSXKeychainRemoveKeyWhenEmpty(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:         path,
+		passwordFunc: fixedStringPrompt("test password"),
+		service:      "test",
+		isTrusted:    true,
+	}
+
+	err := k.Remove("no-such-key")
+	// TODO: we should consider making a generic package error like keyring.ErrNoKeyChain instead of letting
+	//       the go-keychain lib's internal errors leak through. We do this for a few other error types.
+	if err != gokeychain.ErrorNoSuchKeychain {
+		t.Fatal("expected gokeychain.ErrorNoSuchKeychain")
+	}
+}
+
+func TestOSXKeychainRemoveKeyWhenNotEmpty(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:         path,
+		passwordFunc: fixedStringPrompt("test password"),
+		service:      "test",
+		isTrusted:    true,
+	}
+	item := Item{
+		Key:         "llamas",
+		Label:       "Arbitrary label",
+		Description: "A freetext description",
+		Data:        []byte("llamas are ok"),
+	}
+
+	if err := k.Set(item); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := k.Get("llamas")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = k.Remove("llamas")
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
