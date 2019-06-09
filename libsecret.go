@@ -252,3 +252,11 @@ func (k *secretsKeyring) Keys() ([]string, error) {
 
 	return keys, nil
 }
+
+// deleteCollection deletes the keyring's collection if it exists. This is mainly to support testing.
+func (k *secretsKeyring) deleteCollection() error {
+	if err := k.openCollection(); err != nil {
+		return err
+	}
+	return k.collection.Delete()
+}
