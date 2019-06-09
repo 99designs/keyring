@@ -3,6 +3,7 @@
 package keyring
 
 import (
+	"os"
 	"sort"
 	"testing"
 
@@ -21,6 +22,10 @@ import (
 //     and provides the Prompt interface using the go-libsecret library.
 
 func libSecretSetup(t *testing.T) (Keyring, func(t *testing.T)) {
+	if os.Getenv("CI") != "" {
+		t.Skip("Skipping testing in CI environment")
+	}
+
 	service, err := libsecret.NewService()
 	if err != nil {
 		t.Fatal(err)
