@@ -6,6 +6,8 @@ This directory contains Vagrant images for use in development and testing.
 Using
 -----
 
+### Fedora (Gnome desktop)
+
 **Pre-Reqs:**
 
 1. Install vagrant
@@ -38,7 +40,26 @@ cd /src
 go test -v ./...
 ```
 
-TODO
-----
+### Windows 10
 
-- [ ] A Windows Vagrant VM for testing wincred.go
+**Pre-Reqs:**
+
+1. Install vagrant
+
+**Launch**:
+
+```sh
+cd vagrant/windows
+vagrant up
+```
+
+`git` and `go` will be installed via the chocolately package manager.
+
+A GUI will open up. Login and open cmd or powershell.
+
+The root of the project will be mounted to `C:\src`
+
+```sh
+cd C:\src
+go test -v .
+```

@@ -1,0 +1,24 @@
+Vagrant.configure("2") do |config|
+  # https://app.vagrantup.com/StefanScherer/boxes/windows_10
+  config.vm.box = "StefanScherer/windows_10"
+  config.vm.box_version = "2019.05.22"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = true
+    vb.memory = 2048
+    vb.cpus = 2
+    vb.customize ["modifyvm", :id, "--vram", "128"]
+    vb.customize ["modifyvm", :id, "--accelerate3d", "on"]
+  end
+
+  # install chocolately pkg manager
+  config.vm.provision "shell", privileged: true, inline: <<-SHELL
+  Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
+SHELL
+
+  config.vm.provision "shell", inline: "choco install -y git"
+  config.vm.provision "shell", inline: "choco install -y golang"
+
+  # mount the project into c:\src
+  config.vm.synced_folder "../..", "/src"
+end
