@@ -49,6 +49,13 @@ func (k *windowsKeyring) Get(key string) (Item, error) {
 	return item, nil
 }
 
+// GetMetadata for pass returns an error indicating that it's unsupported
+// for this backend.
+// TODO: This is a stub. Look into whether pass would support metadata in a usable way for keyring.
+func (k *windowsKeyring) GetMetadata(_ string) (Metadata, error) {
+	return Metadata{}, ErrMetadataNeedsCredentials
+}
+
 func (k *windowsKeyring) Set(item Item) error {
 	cred := wincred.NewGenericCredential(k.credentialName(item.Key))
 	cred.CredentialBlob = item.Data
