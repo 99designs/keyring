@@ -45,9 +45,8 @@ func TestLibSecretKeysWhenEmpty(t *testing.T) {
 	kr, _ := libSecretSetup(t)
 
 	_, err := kr.Keys()
-	// TODO: consider making Keys() return ErrNoSuchKey similar to when Get() is called before a keychain exists
-	if err == nil {
-		t.Fatal("expected keyring.secretsError")
+	if err != ErrCollectionNotFound {
+		t.Fatal("Expected keyring.ErrCollectionNotFound")
 	}
 }
 
@@ -112,9 +111,30 @@ func TestLibSecretGetWhenNotEmpty(t *testing.T) {
 	}
 }
 
-// func TestLibSecretRemoveWhenEmpty(t *testing.T) {
-// 	kr, _ := libSecretSetup(t)
+func TestLibSecretRemoveWhenEmpty(t *testing.T) {
+	kr, _ := libSecretSetup(t)
 
-// }
+	err := kr.Remove("no-such-key")
+	if err != ErrCollectionNotFound {
+		t.Fatal("Expected keyring.ErrCollectionNotFound")
+	}
+}
 
-// func TestLibSecretRemoveWhenNotEmpty(t *testing.T) {}
+func TestLibSecretRemoveWhenNotEmpty(t *testing.T) {
+	kr, teardown := libSecretSetup(t)
+	defer teardown(t)
+
+	item := Item{Key: "llamas", Data: []byte("llamas are great")}
+
+	if err := kr.Set(item); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := kr.Get("llamas"); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := kr.Remove("llamas"); err != nil {
+		t.Fatal(err)
+	}
+}
