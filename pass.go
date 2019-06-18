@@ -70,7 +70,7 @@ func (k *passKeyring) Get(key string) (Item, error) {
 }
 
 func (k *passKeyring) GetMetadata(key string) (Metadata, error) {
-    return Metadata{}, nil
+	return Metadata{}, nil
 }
 
 func (k *passKeyring) Set(i Item) error {
