@@ -48,3 +48,7 @@ func (k *ArrayKeyring) Keys() ([]string, error) {
 	}
 	return keys, nil
 }
+
+func (k *ArrayKeyring) GetMetadata(_ string) (Metadata, error) {
+	return Metadata{}, ErrMetadataNeedsCredentials
+}
