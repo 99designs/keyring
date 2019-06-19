@@ -6,6 +6,7 @@ os:
   - osx
 addons:
   homebrew:
+    update: True
     packages:
     - gnupg
     - pass
