@@ -69,6 +69,10 @@ func (k *passKeyring) Get(key string) (Item, error) {
 	return decoded, err
 }
 
+func (k *passKeyring) GetMetadata(key string) (Metadata, error) {
+	return Metadata{}, nil
+}
+
 func (k *passKeyring) Set(i Item) error {
 	bytes, err := json.Marshal(i)
 	if err != nil {
