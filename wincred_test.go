@@ -73,6 +73,11 @@ func TestListingCredentialsWithWinCred(t *testing.T) {
 	if expected := []string{"test"}; !reflect.DeepEqual(keys, expected) {
 		t.Fatalf("Unexpected keys, got %#v, expected %#v", keys, expected)
 	}
+
+	err = kr.Remove("test")
+	if err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestWinCredGetWhenEmpty(t *testing.T) {
@@ -112,7 +117,7 @@ func TestWinCredKeysWhenEmpty(t *testing.T) {
 	}
 
 	_, err = kr.Keys()
-	if err != nil {
-		t.Fatal(err)
+	if err != keyring.ErrKeyNotFound {
+		t.Fatal("Expected ErrKeyNotFound")
 	}
 }

@@ -45,8 +45,8 @@ func TestLibSecretKeysWhenEmpty(t *testing.T) {
 	kr, _ := libSecretSetup(t)
 
 	_, err := kr.Keys()
-	if err != ErrCollectionNotFound {
-		t.Fatal("Expected keyring.ErrCollectionNotFound")
+	if err != ErrKeyNotFound {
+		t.Fatalf("Expected ErrKeyNotFound, got: %s", err)
 	}
 }
 
@@ -88,7 +88,7 @@ func TestLibSecretGetWhenEmpty(t *testing.T) {
 
 	_, err := kr.Get("llamas")
 	if err != ErrKeyNotFound {
-		t.Fatal("Expected ErrKeyNotFound")
+		t.Fatalf("Expected ErrKeyNotFound, got: %s", err)
 	}
 }
 
@@ -115,8 +115,8 @@ func TestLibSecretRemoveWhenEmpty(t *testing.T) {
 	kr, _ := libSecretSetup(t)
 
 	err := kr.Remove("no-such-key")
-	if err != ErrCollectionNotFound {
-		t.Fatal("Expected keyring.ErrCollectionNotFound")
+	if err != ErrKeyNotFound {
+		t.Fatalf("Expected ErrKeyNotFound, got: %s", err)
 	}
 }
 

@@ -54,7 +54,7 @@ func (e *secretsError) Error() string {
 	return e.message
 }
 
-var ErrCollectionNotFound = errors.New("The collection does not exist. Please add a key first")
+var errCollectionNotFound = errors.New("The collection does not exist. Please add a key first")
 
 func (k *secretsKeyring) openSecrets() error {
 	session, err := k.service.Open()
@@ -87,7 +87,7 @@ func (k *secretsKeyring) openCollection() error {
 	}
 
 	if k.collection == nil {
-		return ErrCollectionNotFound
+		return errCollectionNotFound
 		// return &secretsError{fmt.Sprintf(
 		// 	"The collection %q does not exist. Please add a key first",
 		// 	k.name,
@@ -99,7 +99,7 @@ func (k *secretsKeyring) openCollection() error {
 
 func (k *secretsKeyring) Get(key string) (Item, error) {
 	if err := k.openCollection(); err != nil {
-		if err == ErrCollectionNotFound {
+		if err == errCollectionNotFound {
 			return Item{}, ErrKeyNotFound
 		}
 		return Item{}, err
@@ -199,8 +199,10 @@ func (k *secretsKeyring) Set(item Item) error {
 }
 
 func (k *secretsKeyring) Remove(key string) error {
-	err := k.openCollection()
-	if err != nil {
+	if err := k.openCollection(); err != nil {
+		if err == errCollectionNotFound {
+			return ErrKeyNotFound
+		}
 		return err
 	}
 
@@ -237,8 +239,10 @@ func (k *secretsKeyring) Remove(key string) error {
 }
 
 func (k *secretsKeyring) Keys() ([]string, error) {
-	err := k.openCollection()
-	if err != nil {
+	if err := k.openCollection(); err != nil {
+		if err == errCollectionNotFound {
+			return []string{}, ErrKeyNotFound
+		}
 		return []string{}, err
 	}
 

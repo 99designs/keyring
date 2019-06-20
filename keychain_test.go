@@ -9,8 +9,6 @@ import (
 	"reflect"
 	"testing"
 	"time"
-
-	gokeychain "github.com/keybase/go-keychain"
 )
 
 func TestOSXKeychainKeyringSet(t *testing.T) {
@@ -117,10 +115,8 @@ func TestOSXKeychainKeyringListKeysWhenEmpty(t *testing.T) {
 	}
 
 	_, err := k.Keys()
-	// TODO: we should consider making a generic package error like keyring.ErrNoKeyChain instead of letting
-	//       the go-keychain lib's internal errors leak through. We do this for a few other error types.
-	if err != gokeychain.ErrorNoSuchKeychain {
-		t.Fatal("expected gokeychain.ErrorNoSuchKeychain")
+	if err != ErrKeyNotFound {
+		t.Fatalf("expected ErrKeyNotFound, got: %v", err)
 	}
 }
 
@@ -229,10 +225,8 @@ func TestOSXKeychainRemoveKeyWhenEmpty(t *testing.T) {
 	}
 
 	err := k.Remove("no-such-key")
-	// TODO: we should consider making a generic package error like keyring.ErrNoKeyChain instead of letting
-	//       the go-keychain lib's internal errors leak through. We do this for a few other error types.
-	if err != gokeychain.ErrorNoSuchKeychain {
-		t.Fatal("expected gokeychain.ErrorNoSuchKeychain")
+	if err != ErrKeyNotFound {
+		t.Fatalf("expected ErrKeyNotFound, got: %v", err)
 	}
 }
 

@@ -88,13 +88,9 @@ func TestPassKeyringKeysWhenEmpty(t *testing.T) {
 	k, teardown := setup(t)
 	defer teardown(t)
 
-	keys, err := k.Keys()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if len(keys) != 0 {
-		t.Fatalf("Expected 0 keys, got %q", len(keys))
+	_, err := k.Keys()
+	if err != ErrKeyNotFound {
+		t.Fatalf("expected ErrKeyNotFound, got: %v", err)
 	}
 }
 
@@ -137,8 +133,8 @@ func TestPassKeyringRemoveWhenEmpty(t *testing.T) {
 	defer teardown(t)
 
 	err := k.Remove("no-such-key")
-	if err == nil {
-		t.Log("Expected error")
+	if err != ErrKeyNotFound {
+		t.Fatalf("expected ErrKeyNotFound, got: %v", err)
 	}
 }
 
@@ -157,8 +153,8 @@ func TestPassKeyringRemoveWhenNotEmpty(t *testing.T) {
 	}
 
 	keys, err := k.Keys()
-	if err != nil {
-		t.Fatal(err)
+	if err != ErrKeyNotFound {
+		t.Fatalf("expected ErrKeyNotFound, got: %v", err)
 	}
 
 	if len(keys) != 0 {
@@ -171,8 +167,8 @@ func TestPassKeyringGetWhenEmpty(t *testing.T) {
 	defer teardown(t)
 
 	_, err := k.Get("no-such-key")
-	if err == nil {
-		t.Log("Expected error")
+	if err != ErrKeyNotFound {
+		t.Fatalf("expected ErrKeyNotFound, got: %v", err)
 	}
 }
 

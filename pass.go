@@ -52,6 +52,10 @@ func (k *passKeyring) pass(args ...string) (*exec.Cmd, error) {
 }
 
 func (k *passKeyring) Get(key string) (Item, error) {
+	if !k.itemExists(key) {
+		return Item{}, ErrKeyNotFound
+	}
+
 	name := filepath.Join(k.prefix, key)
 	cmd, err := k.pass("show", name)
 	if err != nil {
@@ -96,6 +100,10 @@ func (k *passKeyring) Set(i Item) error {
 }
 
 func (k *passKeyring) Remove(key string) error {
+	if !k.itemExists(key) {
+		return ErrKeyNotFound
+	}
+
 	name := filepath.Join(k.prefix, key)
 	cmd, err := k.pass("rm", "-f", name)
 	if err != nil {
@@ -110,6 +118,15 @@ func (k *passKeyring) Remove(key string) error {
 	return nil
 }
 
+func (k *passKeyring) itemExists(key string) bool {
+	var path = filepath.Join(k.dir, k.prefix, key+".gpg")
+	_, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	return true
+}
+
 func (k *passKeyring) Keys() ([]string, error) {
 	var keys = []string{}
 	var path = filepath.Join(k.dir, k.prefix)
@@ -117,7 +134,7 @@ func (k *passKeyring) Keys() ([]string, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return keys, nil
+			return keys, ErrKeyNotFound
 		}
 		return keys, err
 	}
@@ -134,9 +151,10 @@ func (k *passKeyring) Keys() ([]string, error) {
 		if filepath.Ext(f.Name()) == ".gpg" {
 			name := filepath.Base(f.Name())
 			keys = append(keys, name[:len(name)-4])
-
 		}
 	}
-
+	if len(keys) == 0 {
+		return keys, ErrKeyNotFound
+	}
 	return keys, nil
 }
