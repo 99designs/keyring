@@ -134,7 +134,7 @@ func (k *passKeyring) Keys() ([]string, error) {
 	info, err := os.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return keys, ErrKeyNotFound
+			return keys, nil
 		}
 		return keys, err
 	}
@@ -152,9 +152,6 @@ func (k *passKeyring) Keys() ([]string, error) {
 			name := filepath.Base(f.Name())
 			keys = append(keys, name[:len(name)-4])
 		}
-	}
-	if len(keys) == 0 {
-		return keys, ErrKeyNotFound
 	}
 	return keys, nil
 }

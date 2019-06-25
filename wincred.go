@@ -85,10 +85,6 @@ func (k *windowsKeyring) Keys() ([]string, error) {
 		}
 	}
 
-	if len(results) == 0 {
-		return results, ErrKeyNotFound
-	}
-
 	return results, nil
 }
 

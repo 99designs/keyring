@@ -241,7 +241,7 @@ func (k *secretsKeyring) Remove(key string) error {
 func (k *secretsKeyring) Keys() ([]string, error) {
 	if err := k.openCollection(); err != nil {
 		if err == errCollectionNotFound {
-			return []string{}, ErrKeyNotFound
+			return []string{}, nil
 		}
 		return []string{}, err
 	}

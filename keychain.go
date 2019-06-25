@@ -218,7 +218,7 @@ func (k *keychain) Keys() ([]string, error) {
 
 		if err := kc.Status(); err != nil {
 			if err == gokeychain.ErrorNoSuchKeychain {
-				return nil, ErrKeyNotFound
+				return []string{}, nil
 			}
 			return nil, err
 		}
@@ -236,10 +236,6 @@ func (k *keychain) Keys() ([]string, error) {
 	accountNames := make([]string, len(results))
 	for idx, r := range results {
 		accountNames[idx] = r.Account
-	}
-
-	if len(accountNames) == 0 {
-		return accountNames, ErrKeyNotFound
 	}
 
 	return accountNames, nil

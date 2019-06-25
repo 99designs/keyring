@@ -116,8 +116,11 @@ func TestWinCredKeysWhenEmpty(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	_, err = kr.Keys()
-	if err != keyring.ErrKeyNotFound {
-		t.Fatal("Expected ErrKeyNotFound")
+	keys, err := kr.Keys()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(keys) != 0 {
+		t.Fatalf("Expected 0 keys, got %d", len(keys))
 	}
 }
