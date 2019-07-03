@@ -1,0 +1,56 @@
+# required plugins:
+#
+#  vagrant plugin install vagrant-vbguest
+#  vagrant plugin install vagrant-reload
+#
+
+Vagrant.configure("2") do |config|
+  # https://app.vagrantup.com/generic/boxes/fedora29
+  config.vm.box = "generic/fedora29"
+  config.vm.box_version = "1.9.14"
+
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = true
+    vb.memory = 1024
+    vb.cpus = 2
+    vb.customize ["modifyvm", :id, "--vram", "128"]
+    vb.customize ["modifyvm", :id, "--accelerate3d", "off"]
+  end
+
+  # vagrant plugin install vagrant-vbguest
+  config.vbguest.auto_update = true
+
+  # install gnome + xorg
+  config.vm.provision "shell", inline: "sudo dnf group install -y gnome-desktop base-x"
+  config.vm.provision "shell", inline: "sudo systemctl set-default graphical.target"
+
+  # disable wayland, force Xorg. Wayland seems buggy and very slow in Vbox 6.0/fedora29
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo sed -i -e 's/#WaylandEnable=false/WaylandEnable=false/' \
+                -e 's/\\[daemon\\]/\\[daemon\\]\\nDefaultSession=gnome-xorg.desktop/' \
+                /etc/gdm/custom.conf
+SHELL
+
+  # disable super annoying packagekitd
+  config.vm.provision "shell", inline: "sudo systemctl disable packagekit"
+  config.vm.provision "shell", inline: "sudo systemctl stop    packagekit"
+
+  # gnome keyring
+  config.vm.provision "shell", inline: "sudo dnf install -y gnome-keyring seahorse"
+
+  # kwallet
+  config.vm.provision "shell", inline: "sudo dnf install -y kwalletmanager5"
+
+  # install latest golang
+  config.vm.provision "shell", inline: <<-SHELL
+    sudo rpm --import https://mirror.go-repo.io/fedora/RPM-GPG-KEY-GO-REPO
+    curl -s https://mirror.go-repo.io/fedora/go-repo.repo | sudo tee /etc/yum.repos.d/go-repo.repo
+    sudo dnf install -y golang
+SHELL
+
+  # vagrant plugin install vagrant-reload
+  config.vm.provision :reload
+
+  # mount the project into /src
+  config.vm.synced_folder "../..", "/src"
+end

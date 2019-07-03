@@ -73,4 +73,54 @@ func TestListingCredentialsWithWinCred(t *testing.T) {
 	if expected := []string{"test"}; !reflect.DeepEqual(keys, expected) {
 		t.Fatalf("Unexpected keys, got %#v, expected %#v", keys, expected)
 	}
+
+	err = kr.Remove("test")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestWinCredGetWhenEmpty(t *testing.T) {
+	kr, err := keyring.Open(keyring.Config{
+		AllowedBackends: []keyring.BackendType{keyring.WinCredBackend},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	_, err = kr.Get("llamas")
+	if err != keyring.ErrKeyNotFound {
+		t.Fatal("Expected ErrKeyNotFound")
+	}
+}
+
+func TestWinCredRemoveWhenEmpty(t *testing.T) {
+	kr, err := keyring.Open(keyring.Config{
+		AllowedBackends: []keyring.BackendType{keyring.WinCredBackend},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = kr.Remove("no-such-key")
+	if err != keyring.ErrKeyNotFound {
+		t.Fatal("Expected ErrKeyNotFound")
+	}
+}
+
+func TestWinCredKeysWhenEmpty(t *testing.T) {
+	kr, err := keyring.Open(keyring.Config{
+		AllowedBackends: []keyring.BackendType{keyring.WinCredBackend},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	keys, err := kr.Keys()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(keys) != 0 {
+		t.Fatalf("Expected 0 keys, got %d", len(keys))
+	}
 }

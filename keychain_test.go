@@ -103,7 +103,27 @@ func TestOSXKeychainKeyringOverwrite(t *testing.T) {
 	}
 }
 
-func TestOSXKeychainKeyringListKeys(t *testing.T) {
+func TestOSXKeychainKeyringListKeysWhenEmpty(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:         path,
+		service:      "test",
+		passwordFunc: fixedStringPrompt("test password"),
+		isTrusted:    true,
+	}
+
+	keys, err := k.Keys()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(keys) != 0 {
+		t.Fatalf("Expected 0 keys, got %d", len(keys))
+	}
+}
+
+func TestOSXKeychainKeyringListKeysWhenNotEmpty(t *testing.T) {
 	path := tempPath()
 	defer deleteKeychain(path, t)
 
@@ -146,6 +166,102 @@ func deleteKeychain(path string, t *testing.T) {
 	dbPath := path + "-db"
 	if _, err := os.Stat(dbPath); os.IsExist(err) {
 		_ = os.Remove(dbPath)
+	}
+}
+
+func TestOSXKeychainGetKeyWhenEmpty(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:         path,
+		passwordFunc: fixedStringPrompt("test password"),
+		service:      "test",
+		isTrusted:    true,
+	}
+
+	_, err := k.Get("no-such-key")
+	if err != ErrKeyNotFound {
+		t.Fatal("expected ErrKeyNotFound")
+	}
+}
+
+func TestOSXKeychainGetKeyWhenNotEmpty(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:         path,
+		passwordFunc: fixedStringPrompt("test password"),
+		service:      "test",
+		isTrusted:    true,
+	}
+	item := Item{
+		Key:         "llamas",
+		Label:       "Arbitrary label",
+		Description: "A freetext description",
+		Data:        []byte("llamas are ok"),
+	}
+
+	if err := k.Set(item); err != nil {
+		t.Fatal(err)
+	}
+
+	v1, err := k.Get("llamas")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(v1.Data) != string(item.Data) {
+		t.Fatalf("Data stored was not the data retrieved: %q vs %q", v1.Data, item.Data)
+	}
+}
+
+func TestOSXKeychainRemoveKeyWhenEmpty(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:         path,
+		passwordFunc: fixedStringPrompt("test password"),
+		service:      "test",
+		isTrusted:    true,
+	}
+
+	err := k.Remove("no-such-key")
+	if err != ErrKeyNotFound {
+		t.Fatalf("expected ErrKeyNotFound, got: %v", err)
+	}
+}
+
+func TestOSXKeychainRemoveKeyWhenNotEmpty(t *testing.T) {
+	path := tempPath()
+	defer deleteKeychain(path, t)
+
+	k := &keychain{
+		path:         path,
+		passwordFunc: fixedStringPrompt("test password"),
+		service:      "test",
+		isTrusted:    true,
+	}
+	item := Item{
+		Key:         "llamas",
+		Label:       "Arbitrary label",
+		Description: "A freetext description",
+		Data:        []byte("llamas are ok"),
+	}
+
+	if err := k.Set(item); err != nil {
+		t.Fatal(err)
+	}
+
+	_, err := k.Get("llamas")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = k.Remove("llamas")
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 

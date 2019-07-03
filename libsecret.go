@@ -4,7 +4,7 @@ package keyring
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 
 	"github.com/godbus/dbus"
 	"github.com/gsterjov/go-libsecret"
@@ -54,6 +54,8 @@ func (e *secretsError) Error() string {
 	return e.message
 }
 
+var errCollectionNotFound = errors.New("The collection does not exist. Please add a key first")
+
 func (k *secretsKeyring) openSecrets() error {
 	session, err := k.service.Open()
 	if err != nil {
@@ -85,10 +87,11 @@ func (k *secretsKeyring) openCollection() error {
 	}
 
 	if k.collection == nil {
-		return &secretsError{fmt.Sprintf(
-			"The collection %q does not exist. Please add a key first",
-			k.name,
-		)}
+		return errCollectionNotFound
+		// return &secretsError{fmt.Sprintf(
+		// 	"The collection %q does not exist. Please add a key first",
+		// 	k.name,
+		// )}
 	}
 
 	return nil
@@ -96,6 +99,9 @@ func (k *secretsKeyring) openCollection() error {
 
 func (k *secretsKeyring) Get(key string) (Item, error) {
 	if err := k.openCollection(); err != nil {
+		if err == errCollectionNotFound {
+			return Item{}, ErrKeyNotFound
+		}
 		return Item{}, err
 	}
 
@@ -105,7 +111,7 @@ func (k *secretsKeyring) Get(key string) (Item, error) {
 	}
 
 	if len(items) == 0 {
-		return Item{}, err
+		return Item{}, ErrKeyNotFound
 	}
 
 	// use the first item whenever there are multiples
@@ -193,8 +199,10 @@ func (k *secretsKeyring) Set(item Item) error {
 }
 
 func (k *secretsKeyring) Remove(key string) error {
-	err := k.openCollection()
-	if err != nil {
+	if err := k.openCollection(); err != nil {
+		if err == errCollectionNotFound {
+			return ErrKeyNotFound
+		}
 		return err
 	}
 
@@ -231,8 +239,10 @@ func (k *secretsKeyring) Remove(key string) error {
 }
 
 func (k *secretsKeyring) Keys() ([]string, error) {
-	err := k.openCollection()
-	if err != nil {
+	if err := k.openCollection(); err != nil {
+		if err == errCollectionNotFound {
+			return []string{}, nil
+		}
 		return []string{}, err
 	}
 
@@ -251,4 +261,12 @@ func (k *secretsKeyring) Keys() ([]string, error) {
 	}
 
 	return keys, nil
+}
+
+// deleteCollection deletes the keyring's collection if it exists. This is mainly to support testing.
+func (k *secretsKeyring) deleteCollection() error {
+	if err := k.openCollection(); err != nil {
+		return err
+	}
+	return k.collection.Delete()
 }

@@ -193,6 +193,9 @@ func (k *keychain) Remove(key string) error {
 		kc := gokeychain.NewWithPath(k.path)
 
 		if err := kc.Status(); err != nil {
+			if err == gokeychain.ErrorNoSuchKeychain {
+				return ErrKeyNotFound
+			}
 			return err
 		}
 
@@ -214,6 +217,9 @@ func (k *keychain) Keys() ([]string, error) {
 		kc := gokeychain.NewWithPath(k.path)
 
 		if err := kc.Status(); err != nil {
+			if err == gokeychain.ErrorNoSuchKeychain {
+				return []string{}, nil
+			}
 			return nil, err
 		}
 
