@@ -10,8 +10,8 @@ import (
 )
 
 const (
-	dbusServiceName = "org.kde.kwalletd"
-	dbusPath        = "/modules/kwalletd"
+	dbusServiceName = "org.kde.kwalletd5"
+	dbusPath        = "/modules/kwalletd5"
 )
 
 func init() {
