@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"sort"
+	"reflect"
 	"testing"
 )
 
@@ -101,16 +101,16 @@ func TestPassKeyringKeysWhenNotEmpty(t *testing.T) {
 	k, teardown := setup(t)
 	defer teardown(t)
 
-	item := Item{Key: "llamas", Data: []byte("llamas are great")}
-
-	if err := k.Set(item); err != nil {
-		t.Fatal(err)
+	items := []Item{
+		{Key: "llamas", Data: []byte("llamas are great")},
+		{Key: "alpacas", Data: []byte("alpacas are better")},
+		{Key: "africa/elephants", Data: []byte("who doesn't like elephants")},
 	}
 
-	item = Item{Key: "alpacas", Data: []byte("alpacas are better")}
-
-	if err := k.Set(item); err != nil {
-		t.Fatal(err)
+	for _, item := range items {
+		if err := k.Set(item); err != nil {
+			t.Fatal(err)
+		}
 	}
 
 	keys, err := k.Keys()
@@ -118,16 +118,18 @@ func TestPassKeyringKeysWhenNotEmpty(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if len(keys) != 2 {
-		t.Fatalf("Expected 2 keys, got %d", len(keys))
+	if len(keys) != len(items) {
+		t.Fatalf("Expected %d keys, got %d", len(items), len(keys))
 	}
 
-	sort.Strings(keys)
-	if keys[0] != "alpacas" {
-		t.Fatalf("Expected alpacas")
+	expectedKeys := []string{
+		"africa/elephants",
+		"alpacas",
+		"llamas",
 	}
-	if keys[1] != "llamas" {
-		t.Fatalf("Expected llamas")
+
+	if !reflect.DeepEqual(keys, expectedKeys) {
+		t.Fatalf("Expected keys %v, got %v", expectedKeys, keys)
 	}
 }
 
