@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -142,16 +141,20 @@ func (k *passKeyring) Keys() ([]string, error) {
 		return keys, fmt.Errorf("%s is not a directory", path)
 	}
 
-	files, err := ioutil.ReadDir(path)
-	if err != nil {
-		return keys, err
-	}
+	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
 
-	for _, f := range files {
-		if filepath.Ext(f.Name()) == ".gpg" {
-			name := filepath.Base(f.Name())
+		if !info.IsDir() && filepath.Ext(p) == ".gpg" {
+			name := strings.TrimPrefix(p, path)
+			if name[0] == os.PathSeparator {
+				name = name[1:]
+			}
 			keys = append(keys, name[:len(name)-4])
 		}
-	}
-	return keys, nil
+		return nil
+	})
+
+	return keys, err
 }
