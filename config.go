@@ -11,9 +11,6 @@ type Config struct {
 	// MacOSKeychainNameKeychainName is the name of the macOS keychain that is used
 	KeychainName string
 
-	// KeychainTrustApplication is whether the calling application should be trusted by default by items
-	KeychainTrustApplication bool
-
 	// KeychainSynchronizable is whether the item can be synchronized to iCloud
 	KeychainSynchronizable bool
 

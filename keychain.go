@@ -17,7 +17,6 @@ type keychain struct {
 
 	isSynchronizable         bool
 	isAccessibleWhenUnlocked bool
-	isTrusted                bool
 }
 
 func init() {
@@ -33,9 +32,6 @@ func init() {
 		}
 		if cfg.KeychainName != "" {
 			kc.path = cfg.KeychainName + ".keychain"
-		}
-		if cfg.KeychainTrustApplication {
-			kc.isTrusted = true
 		}
 		return kc, nil
 	})
@@ -144,23 +140,7 @@ func (k *keychain) Set(item Item) error {
 		kcItem.SetAccessible(gokeychain.AccessibleWhenUnlocked)
 	}
 
-	isTrusted := k.isTrusted && !item.KeychainNotTrustApplication
-
-	if isTrusted {
-		debugf("Keychain item trusts keyring")
-		kcItem.SetAccess(&gokeychain.Access{
-			Label:               item.Label,
-			TrustedApplications: nil,
-		})
-	} else {
-		debugf("Keychain item doesn't trust keyring")
-		kcItem.SetAccess(&gokeychain.Access{
-			Label:               item.Label,
-			TrustedApplications: []string{},
-		})
-	}
-
-	debugf("Adding service=%q, label=%q, account=%q, trusted=%v to osx keychain %q", k.service, item.Label, item.Key, isTrusted, k.path)
+	debugf("Adding service=%q, label=%q, account=%q to osx keychain %q", k.service, item.Label, item.Key, k.path)
 
 	if err := gokeychain.AddItem(kcItem); err == gokeychain.ErrorDuplicateItem {
 		debugf("Item already exists, updating")
@@ -182,9 +162,6 @@ func (k *keychain) Set(item Item) error {
 		if len(results) == 0 {
 			return errors.New("no results")
 		}
-
-		// Don't call SetAccess() as this will cause multiple prompts on update, even when we are not updating the AccessList
-		kcItem.SetAccess(nil)
 
 		if err := gokeychain.UpdateItem(queryItem, kcItem); err != nil {
 			return fmt.Errorf("Failed to update item in keychain: %v", err)

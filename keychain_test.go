@@ -19,7 +19,6 @@ func TestOSXKeychainKeyringSet(t *testing.T) {
 		path:         path,
 		passwordFunc: fixedStringPrompt("test password"),
 		service:      "test",
-		isTrusted:    true,
 	}
 
 	item := Item{
@@ -59,7 +58,6 @@ func TestOSXKeychainKeyringOverwrite(t *testing.T) {
 		path:         path,
 		passwordFunc: fixedStringPrompt("test password"),
 		service:      "test",
-		isTrusted:    true,
 	}
 
 	item1 := Item{
@@ -111,7 +109,6 @@ func TestOSXKeychainKeyringListKeysWhenEmpty(t *testing.T) {
 		path:         path,
 		service:      "test",
 		passwordFunc: fixedStringPrompt("test password"),
-		isTrusted:    true,
 	}
 
 	keys, err := k.Keys()
@@ -131,7 +128,6 @@ func TestOSXKeychainKeyringListKeysWhenNotEmpty(t *testing.T) {
 		path:         path,
 		service:      "test",
 		passwordFunc: fixedStringPrompt("test password"),
-		isTrusted:    true,
 	}
 
 	keys := []string{"key1", "key2", "key3"}
@@ -177,7 +173,6 @@ func TestOSXKeychainGetKeyWhenEmpty(t *testing.T) {
 		path:         path,
 		passwordFunc: fixedStringPrompt("test password"),
 		service:      "test",
-		isTrusted:    true,
 	}
 
 	_, err := k.Get("no-such-key")
@@ -194,7 +189,6 @@ func TestOSXKeychainGetKeyWhenNotEmpty(t *testing.T) {
 		path:         path,
 		passwordFunc: fixedStringPrompt("test password"),
 		service:      "test",
-		isTrusted:    true,
 	}
 	item := Item{
 		Key:         "llamas",
@@ -224,7 +218,6 @@ func TestOSXKeychainRemoveKeyWhenEmpty(t *testing.T) {
 		path:         path,
 		passwordFunc: fixedStringPrompt("test password"),
 		service:      "test",
-		isTrusted:    true,
 	}
 
 	err := k.Remove("no-such-key")
@@ -241,7 +234,6 @@ func TestOSXKeychainRemoveKeyWhenNotEmpty(t *testing.T) {
 		path:         path,
 		passwordFunc: fixedStringPrompt("test password"),
 		service:      "test",
-		isTrusted:    true,
 	}
 	item := Item{
 		Key:         "llamas",
