@@ -171,6 +171,10 @@ func (k *secretsKeyring) Set(item Item) error {
 		k.collection = collection
 	}
 
+	if err := k.ensureCollectionUnlocked(); err != nil {
+		return err
+	}
+
 	// create the new item
 	data, err := json.Marshal(item)
 	if err != nil {
@@ -178,18 +182,6 @@ func (k *secretsKeyring) Set(item Item) error {
 	}
 
 	secret := libsecret.NewSecret(k.session, []byte{}, data, "application/json")
-
-	// unlock the collection first
-	locked, err := k.collection.Locked()
-	if err != nil {
-		return err
-	}
-
-	if locked {
-		if err := k.service.Unlock(k.collection); err != nil {
-			return err
-		}
-	}
 
 	if _, err := k.collection.CreateItem(item.Key, secret, true); err != nil {
 		return err
@@ -243,23 +235,24 @@ func (k *secretsKeyring) Keys() ([]string, error) {
 		if err == errCollectionNotFound {
 			return []string{}, nil
 		}
-		return []string{}, err
+		return nil, err
 	}
-
+	if err := k.ensureCollectionUnlocked(); err != nil {
+		return nil, err
+	}
 	items, err := k.collection.Items()
 	if err != nil {
-		return []string{}, err
+		return nil, err
 	}
-
 	keys := []string{}
-
 	for _, item := range items {
 		label, err := item.Label()
 		if err == nil {
 			keys = append(keys, label)
+		} else {
+			// err is being silently ignored here, not sure if that's good or bad
 		}
 	}
-
 	return keys, nil
 }
 
@@ -269,4 +262,16 @@ func (k *secretsKeyring) deleteCollection() error {
 		return err
 	}
 	return k.collection.Delete()
+}
+
+// unlock the collection if it's locked
+func (k *secretsKeyring) ensureCollectionUnlocked() error {
+	locked, err := k.collection.Locked()
+	if err != nil {
+		return err
+	}
+	if !locked {
+		return nil
+	}
+	return k.service.Unlock(k.collection)
 }
