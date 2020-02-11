@@ -17,7 +17,7 @@ func main() {
 	listBackends := flag.Bool("list-backends", false, "Whether to list backends")
 
 	// actions to take
-	actionListKeys := flag.Bool("list-keys", false, "Whether to list backends")
+	actionListKeys := flag.Bool("list-keys", false, "Whether to list keys")
 	actionSetValue := flag.String("set", "", "The value to set")
 
 	// keychain
