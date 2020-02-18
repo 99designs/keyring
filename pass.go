@@ -127,21 +127,38 @@ func (k *passKeyring) itemExists(key string) bool {
 }
 
 func (k *passKeyring) Keys() ([]string, error) {
-	var keys = []string{}
-	var path = filepath.Join(k.dir, k.prefix)
+	var (
+		keys  = []string{}
+		path  = filepath.Join(k.dir, k.prefix)
+		rpath string
+	)
 
-	info, err := os.Stat(path)
+	info, err := os.Lstat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
 			return keys, nil
 		}
 		return keys, err
 	}
-	if !info.IsDir() {
-		return keys, fmt.Errorf("%s is not a directory", path)
+
+	switch mode := info.Mode(); {
+
+	case mode&os.ModeSymlink != 0:
+		rs, err := filepath.EvalSymlinks(path)
+		if err != nil {
+			return keys, err
+		}
+		rpath = rs
+	case mode&os.ModeDir != 0:
+		rpath = path
+
 	}
 
-	err = filepath.Walk(path, func(p string, info os.FileInfo, err error) error {
+	if !info.IsDir() && (info.Mode()&os.ModeSymlink == 0) {
+		return keys, fmt.Errorf("%s is not a directory or a symlink", path)
+	}
+
+	err = filepath.Walk(rpath, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
