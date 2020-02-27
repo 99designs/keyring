@@ -1,0 +1,9 @@
+version: '2.4'
+services:
+  keyring:
+    build: .
+    volumes:
+      - .:/keyring:delegated
+    cap_add:
+      - IPC_LOCK
+    working_dir: /keyring
