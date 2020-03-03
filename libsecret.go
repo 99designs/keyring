@@ -7,13 +7,13 @@ import (
 	"errors"
 
 	"github.com/godbus/dbus/v5"
-	"github.com/gsterjov/go-libsecret"
+	libsecret "github.com/ppacher/go-dbus-keyring"
 )
 
 func init() {
-	// silently fail if dbus isn't available
-	_, err := dbus.SessionBus()
+	conn, err := dbus.SessionBus()
 	if err != nil {
+		// silently fail if dbus isn't available
 		return
 	}
 
@@ -25,7 +25,7 @@ func init() {
 			cfg.LibSecretCollectionName = cfg.ServiceName
 		}
 
-		service, err := libsecret.NewService()
+		service, err := libsecret.GetSecretService(conn)
 		if err != nil {
 			return &secretsKeyring{}, err
 		}
@@ -41,9 +41,9 @@ func init() {
 
 type secretsKeyring struct {
 	name       string
-	service    *libsecret.Service
-	collection *libsecret.Collection
-	session    *libsecret.Session
+	service    libsecret.SecretService
+	collection libsecret.Collection
+	session    libsecret.Session
 }
 
 type secretsError struct {
@@ -57,28 +57,20 @@ func (e *secretsError) Error() string {
 var errCollectionNotFound = errors.New("The collection does not exist. Please add a key first")
 
 func (k *secretsKeyring) openSecrets() error {
-	session, err := k.service.Open()
+	var err error
+	k.session, err = k.service.OpenSession()
 	if err != nil {
 		return err
 	}
-	k.session = session
 
 	// get the collection if it already exists
-	collections, err := k.service.Collections()
-	if err != nil {
-		return err
+	k.collection, err = k.service.GetCollection(k.name)
+	if err.Error() == "unknown collection" {
+		k.collection = nil
+		return nil
 	}
 
-	path := libsecret.DBusPath + "/collection/" + k.name
-
-	for _, collection := range collections {
-		if string(collection.Path()) == path {
-			k.collection = &collection
-			return nil
-		}
-	}
-
-	return nil
+	return err
 }
 
 func (k *secretsKeyring) openCollection() error {
@@ -88,10 +80,6 @@ func (k *secretsKeyring) openCollection() error {
 
 	if k.collection == nil {
 		return errCollectionNotFound
-		// return &secretsError{fmt.Sprintf(
-		// 	"The collection %q does not exist. Please add a key first",
-		// 	k.name,
-		// )}
 	}
 
 	return nil
@@ -105,18 +93,10 @@ func (k *secretsKeyring) Get(key string) (Item, error) {
 		return Item{}, err
 	}
 
-	items, err := k.collection.SearchItems(key)
+	item, err := k.collection.GetItem(key)
 	if err != nil {
 		return Item{}, err
 	}
-
-	if len(items) == 0 {
-		return Item{}, ErrKeyNotFound
-	}
-
-	// use the first item whenever there are multiples
-	// with the same profile name
-	item := items[0]
 
 	locked, err := item.Locked()
 	if err != nil {
@@ -124,12 +104,16 @@ func (k *secretsKeyring) Get(key string) (Item, error) {
 	}
 
 	if locked {
-		if err := k.service.Unlock(item); err != nil {
+		ok, err := item.Unlock()
+		if err != nil {
 			return Item{}, err
+		}
+		if !ok {
+			return Item{}, errors.New("Couldn't unlock item")
 		}
 	}
 
-	secret, err := item.GetSecret(k.session)
+	secret, err := item.GetSecret(k.session.Path())
 	if err != nil {
 		return Item{}, err
 	}
@@ -163,7 +147,7 @@ func (k *secretsKeyring) Set(item Item) error {
 
 	// create the collection if it doesn't already exist
 	if k.collection == nil {
-		collection, err := k.service.CreateCollection(k.name)
+		collection, err := k.service.CreateCollection(k.name, "")
 		if err != nil {
 			return err
 		}
@@ -181,9 +165,7 @@ func (k *secretsKeyring) Set(item Item) error {
 		return err
 	}
 
-	secret := libsecret.NewSecret(k.session, []byte{}, data, "application/json")
-
-	if _, err := k.collection.CreateItem(item.Key, secret, true); err != nil {
+	if _, err := k.collection.CreateItem(k.session.Path(), item.Key, map[string]string{}, data, "application/json", true); err != nil {
 		return err
 	}
 
@@ -198,19 +180,10 @@ func (k *secretsKeyring) Remove(key string) error {
 		return err
 	}
 
-	items, err := k.collection.SearchItems(key)
+	item, err := k.collection.GetItem(key)
 	if err != nil {
 		return err
 	}
-
-	// nothing to delete
-	if len(items) == 0 {
-		return nil
-	}
-
-	// we dont want to delete more than one anyway
-	// so just get the first item found
-	item := items[0]
 
 	locked, err := item.Locked()
 	if err != nil {
@@ -218,8 +191,12 @@ func (k *secretsKeyring) Remove(key string) error {
 	}
 
 	if locked {
-		if err := k.service.Unlock(item); err != nil {
+		ok, err := item.Unlock()
+		if err != nil {
 			return err
+		}
+		if !ok {
+			return errors.New("Couldn't unlock item")
 		}
 	}
 
@@ -240,13 +217,13 @@ func (k *secretsKeyring) Keys() ([]string, error) {
 	if err := k.ensureCollectionUnlocked(); err != nil {
 		return nil, err
 	}
-	items, err := k.collection.Items()
+	items, err := k.collection.GetAllItems()
 	if err != nil {
 		return nil, err
 	}
 	keys := []string{}
 	for _, item := range items {
-		label, err := item.Label()
+		label, err := item.GetLabel()
 		if err == nil {
 			keys = append(keys, label)
 		} else {
@@ -273,5 +250,8 @@ func (k *secretsKeyring) ensureCollectionUnlocked() error {
 	if !locked {
 		return nil
 	}
-	return k.service.Unlock(k.collection)
+
+	_, err = k.service.Unlock([]dbus.ObjectPath{k.collection.Path()})
+
+	return err
 }

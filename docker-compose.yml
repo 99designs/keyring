@@ -4,6 +4,10 @@ services:
     build: .
     volumes:
       - .:/keyring:delegated
+      - gomod:/go/pkg/mod
     cap_add:
       - IPC_LOCK
     working_dir: /keyring
+    entrypoint: /keyring/docker/entrypoint.sh
+volumes:
+  gomod: {}

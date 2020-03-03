@@ -3,30 +3,21 @@
 package keyring
 
 import (
-	"os"
 	"sort"
 	"testing"
 
-	"github.com/gsterjov/go-libsecret"
+	"github.com/godbus/dbus/v5"
+	libsecret "github.com/ppacher/go-dbus-keyring"
 )
 
-// NOTE: These tests are not runnable from a headless environment such as
-// Docker or a CI pipeline due to the DBus "prompt" interface being called
-// by the underlying go-libsecret when creating and unlocking a keychain.
-//
-// TODO: Investigate a way to automate the prompting. Some ideas:
-//
-//  1. I've looked extensively but have not found a headless CLI tool that
-//     could be run in the background of eg: a docker container
-//  2. It might be possible to make a mock prompter that connects to DBus
-//     and provides the Prompt interface using the go-libsecret library.
-
 func libSecretSetup(t *testing.T) (Keyring, func(t *testing.T)) {
-	if os.Getenv("CI") != "" {
-		t.Skip("Skipping testing in CI environment")
+	conn, err := dbus.SessionBus()
+
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	service, err := libsecret.NewService()
+	service, err := libsecret.GetSecretService(conn)
 	if err != nil {
 		t.Fatal(err)
 	}
