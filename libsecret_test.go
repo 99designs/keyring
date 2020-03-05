@@ -22,7 +22,7 @@ import (
 //     and provides the Prompt interface using the go-libsecret library.
 
 func libSecretSetup(t *testing.T) (Keyring, func(t *testing.T)) {
-	if os.Getenv("CI") != "" {
+	if os.Getenv("GITHUB_ACTIONS") != "" {
 		t.Skip("Skipping testing in CI environment")
 	}
 
