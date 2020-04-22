@@ -112,6 +112,36 @@ func (k *keychain) GetMetadata(key string) (Metadata, error) {
 	return md, nil
 }
 
+func (k *keychain) updateItem(kc gokeychain.Keychain, kcItem gokeychain.Item, account string) error {
+	queryItem := gokeychain.NewItem()
+	queryItem.SetSecClass(gokeychain.SecClassGenericPassword)
+	queryItem.SetService(k.service)
+	queryItem.SetAccount(account)
+	queryItem.SetMatchLimit(gokeychain.MatchLimitOne)
+	queryItem.SetReturnAttributes(true)
+
+	if k.path != "" {
+		queryItem.SetMatchSearchList(kc)
+	}
+
+	results, err := gokeychain.QueryItem(queryItem)
+	if err != nil {
+		return fmt.Errorf("Failed to query keychain: %v", err)
+	}
+	if len(results) == 0 {
+		return errors.New("no results")
+	}
+
+	// Don't call SetAccess() as this will cause multiple prompts on update, even when we are not updating the AccessList
+	kcItem.SetAccess(nil)
+
+	if err := gokeychain.UpdateItem(queryItem, kcItem); err != nil {
+		return fmt.Errorf("Failed to update item in keychain: %v", err)
+	}
+
+	return nil
+}
+
 func (k *keychain) Set(item Item) error {
 	var kc gokeychain.Keychain
 
@@ -162,33 +192,15 @@ func (k *keychain) Set(item Item) error {
 
 	debugf("Adding service=%q, label=%q, account=%q, trusted=%v to osx keychain %q", k.service, item.Label, item.Key, isTrusted, k.path)
 
-	if err := gokeychain.AddItem(kcItem); err == gokeychain.ErrorDuplicateItem {
+	err := gokeychain.AddItem(kcItem)
+
+	if err == gokeychain.ErrorDuplicateItem {
 		debugf("Item already exists, updating")
-		queryItem := gokeychain.NewItem()
-		queryItem.SetSecClass(gokeychain.SecClassGenericPassword)
-		queryItem.SetService(k.service)
-		queryItem.SetAccount(item.Key)
-		queryItem.SetMatchLimit(gokeychain.MatchLimitOne)
-		queryItem.SetReturnAttributes(true)
+		err = k.updateItem(kc, kcItem, item.Key)
+	}
 
-		if k.path != "" {
-			queryItem.SetMatchSearchList(kc)
-		}
-
-		results, err := gokeychain.QueryItem(queryItem)
-		if err != nil {
-			return fmt.Errorf("Failed to query keychain: %v", err)
-		}
-		if len(results) == 0 {
-			return errors.New("no results")
-		}
-
-		// Don't call SetAccess() as this will cause multiple prompts on update, even when we are not updating the AccessList
-		kcItem.SetAccess(nil)
-
-		if err := gokeychain.UpdateItem(queryItem, kcItem); err != nil {
-			return fmt.Errorf("Failed to update item in keychain: %v", err)
-		}
+	if err != nil {
+		return err
 	}
 
 	return nil
