@@ -1,6 +1,6 @@
 module github.com/99designs/keyring
 
-go 1.12
+go 1.14
 
 require (
 	github.com/danieljoos/wincred v1.0.2
@@ -15,3 +15,5 @@ require (
 	golang.org/x/sys v0.0.0-20190712062909-fae7ac547cb7 // indirect
 	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 )
+
+replace github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
