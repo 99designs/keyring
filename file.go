@@ -120,13 +120,14 @@ func (k *fileKeyring) GetMetadata(key string) (Metadata, error) {
 	}
 
 	// For the File provider, all internal data is encrypted, not just the
-	// credentials.  Thus we only have the timestamps.  Return a nil *Item.
+	// credentials.  Thus we only have the timestamps.  Return an empty *Item.
 	//
 	// If we want to change this ... how portable are extended file attributes
 	// these days?  Would it break user expectations of the security model to
 	// leak data into those?  I'm hesitant to do so.
 
 	return Metadata{
+		Item:             &Item{},
 		ModificationTime: stat.ModTime(),
 	}, nil
 }
