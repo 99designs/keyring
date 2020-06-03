@@ -12,6 +12,8 @@ Currently Keyring supports the following backends
   * [Secret Service](https://github.com/99designs/aws-vault/pull/98)
   * [KDE Wallet](https://github.com/99designs/aws-vault/pull/27)
   * [Encrypted File](https://github.com/99designs/aws-vault/pull/63)
+  * [LastPass](https://github.com/99designs/aws-vault/pull/597)
+     * Requires [lastpass-cli](https://github.com/lastpass/lastpass-cli)
 
 ## Installing
 

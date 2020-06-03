@@ -49,4 +49,10 @@ type Config struct {
 
 	// WinCredPrefix is a string prefix to prepend to the key name
 	WinCredPrefix string
+
+	//Last Pass executable
+	LastPassCmd string
+
+	//Folder in LastPass to hold keys
+	LastPassFolder string
 }
