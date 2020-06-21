@@ -11,6 +11,7 @@ import (
 
 	jose "github.com/dvsekhvalnov/jose2go"
 	homedir "github.com/mitchellh/go-homedir"
+	"github.com/mtibben/percent"
 )
 
 func init() {
@@ -21,6 +22,11 @@ func init() {
 		}, nil
 	})
 }
+
+var filenameEscape = func(s string) string {
+	return percent.Encode(s, "/")
+}
+var filenameUnescape = percent.Decode
 
 type fileKeyring struct {
 	dir          string
@@ -73,12 +79,12 @@ func (k *fileKeyring) unlock() error {
 }
 
 func (k *fileKeyring) Get(key string) (Item, error) {
-	dir, err := k.resolveDir()
+	filename, err := k.filename(key)
 	if err != nil {
 		return Item{}, err
 	}
 
-	bytes, err := ioutil.ReadFile(filepath.Join(dir, key))
+	bytes, err := ioutil.ReadFile(filename)
 	if os.IsNotExist(err) {
 		return Item{}, ErrKeyNotFound
 	} else if err != nil {
@@ -101,12 +107,12 @@ func (k *fileKeyring) Get(key string) (Item, error) {
 }
 
 func (k *fileKeyring) GetMetadata(key string) (Metadata, error) {
-	dir, err := k.resolveDir()
+	filename, err := k.filename(key)
 	if err != nil {
 		return Metadata{}, err
 	}
 
-	stat, err := os.Stat(filepath.Join(dir, key))
+	stat, err := os.Stat(filename)
 	if os.IsNotExist(err) {
 		return Metadata{}, ErrKeyNotFound
 	} else if err != nil {
@@ -131,11 +137,6 @@ func (k *fileKeyring) Set(i Item) error {
 		return err
 	}
 
-	dir, err := k.resolveDir()
-	if err != nil {
-		return err
-	}
-
 	if err = k.unlock(); err != nil {
 		return err
 	}
@@ -148,16 +149,29 @@ func (k *fileKeyring) Set(i Item) error {
 		return err
 	}
 
-	return ioutil.WriteFile(filepath.Join(dir, i.Key), []byte(token), 0600)
+	filename, err := k.filename(i.Key)
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(filename, []byte(token), 0600)
+}
+
+func (k *fileKeyring) filename(key string) (string, error) {
+	dir, err := k.resolveDir()
+	if err != nil {
+		return "", err
+	}
+
+	return filepath.Join(dir, filenameEscape(key)), nil
 }
 
 func (k *fileKeyring) Remove(key string) error {
-	dir, err := k.resolveDir()
+	filename, err := k.filename(key)
 	if err != nil {
 		return err
 	}
 
-	return os.Remove(filepath.Join(dir, key))
+	return os.Remove(filename)
 }
 
 func (k *fileKeyring) Keys() ([]string, error) {
@@ -169,7 +183,7 @@ func (k *fileKeyring) Keys() ([]string, error) {
 	var keys = []string{}
 	files, _ := ioutil.ReadDir(dir)
 	for _, f := range files {
-		keys = append(keys, f.Name())
+		keys = append(keys, filenameUnescape(f.Name()))
 	}
 
 	return keys, nil

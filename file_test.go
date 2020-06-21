@@ -29,3 +29,33 @@ func TestFileKeyringSetWhenEmpty(t *testing.T) {
 		t.Fatalf("Key wasn't persisted: %q", foundItem.Key)
 	}
 }
+
+func TestFileKeyringGetWithSlashes(t *testing.T) {
+	k := &fileKeyring{
+		dir:          os.TempDir(),
+		passwordFunc: fixedStringPrompt("no more secrets"),
+	}
+
+	item := Item{Key: "https://aws-sso-portal.awsapps.com/start", Data: []byte("https://aws-sso-portal.awsapps.com/start")}
+
+	if err := k.Set(item); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := k.Remove(item.Key); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestFilenameWithBadChars(t *testing.T) {
+	a := `abc/.././123`
+	e := filenameEscape(a)
+	if e != `abc%2F..%2F.%2F123` {
+		t.Fatalf("Unexpected result from filenameEscape: %s", e)
+	}
+
+	b := filenameUnescape(e)
+	if b != a {
+		t.Fatal("Unexpected filenameEscape")
+	}
+}
