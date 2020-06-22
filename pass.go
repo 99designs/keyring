@@ -164,7 +164,7 @@ func (k *passKeyring) Keys() ([]string, error) {
 		}
 
 		if !info.IsDir() && filepath.Ext(p) == ".gpg" {
-			name := strings.TrimPrefix(p, path)
+			name := strings.TrimPrefix(p, rpath)
 			if name[0] == os.PathSeparator {
 				name = name[1:]
 			}
