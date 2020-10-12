@@ -13,9 +13,6 @@ Currently Keyring supports the following backends
   * [KDE Wallet](https://github.com/99designs/aws-vault/pull/27)
   * [Encrypted File](https://github.com/99designs/aws-vault/pull/63)
 
-## Installing
-
-`go get github.com/99designs/keyring`
 
 ## Usage
 
@@ -38,7 +35,21 @@ fmt.Printf("%s", i.Data)
 
 For more detail on the API please check [the keyring godocs](https://godoc.org/github.com/99designs/keyring)
 
-## Development & Contributing
+
+## Testing
+
+[Vagrant](https://www.vagrantup.com/) is used to create linux and windows test environments.
+
+```bash
+# Start vagrant
+vagrant up
+
+# Run go tests on all platforms
+./bin/go-test
+```
+
+
+## Contributing
 
 Contributions to the keyring package are most welcome from engineers of all backgrounds and skill levels. In particular the addition of extra backends across popular operating systems would be appreciated.
 
