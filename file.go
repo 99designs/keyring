@@ -10,7 +10,6 @@ import (
 	"time"
 
 	jose "github.com/dvsekhvalnov/jose2go"
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/mtibben/percent"
 )
 
@@ -43,7 +42,7 @@ func (k *fileKeyring) resolveDir() (string, error) {
 
 	// expand tilde for home directory
 	if strings.HasPrefix(dir, "~") {
-		home, err := homedir.Dir()
+		home, err := os.UserHomeDir()
 		if err != nil {
 			return "", err
 		}
