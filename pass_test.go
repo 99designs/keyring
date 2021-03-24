@@ -12,7 +12,11 @@ import (
 	"testing"
 )
 
-func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
+const (
+	passStoreLn = ".password-store-link"
+)
+
+func setup(t *testing.T, makeSymlink bool) (*passKeyring, func(t *testing.T)) {
 	pwd, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
@@ -40,7 +44,14 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 		t.Fatal(err)
 	}
 
-	passdir := filepath.Join(tmpdir, ".password-store")
+	var passdir string
+	if makeSymlink {
+
+		passdir = filepath.Join(tmpdir, "password-store/five/levels/down/to/store")
+	} else {
+
+		passdir = filepath.Join(tmpdir, ".password-store")
+	}
 	k := &passKeyring{
 		dir:     passdir,
 		passcmd: "pass",
@@ -57,13 +68,31 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 		t.Fatal(err)
 	}
 
+	// create a symlink to the password store
+	sl := passStoreLn
+	if makeSymlink {
+		passdirSym := filepath.Join(tmpdir, sl)
+		if err := os.Symlink(passdir, passdirSym); err != nil {
+			t.Fatal(err)
+		}
+		ksl := &passKeyring{
+			dir:     passdirSym,
+			passcmd: "pass",
+			prefix:  "keyring",
+		}
+
+		return ksl, func(t *testing.T) {
+			os.RemoveAll(tmpdir)
+		}
+	}
+
 	return k, func(t *testing.T) {
 		os.RemoveAll(tmpdir)
 	}
 }
 
 func TestPassKeyringSetWhenEmpty(t *testing.T) {
-	k, teardown := setup(t)
+	k, teardown := setup(t, false)
 	defer teardown(t)
 
 	item := Item{Key: "llamas", Data: []byte("llamas are great")}
@@ -87,7 +116,7 @@ func TestPassKeyringSetWhenEmpty(t *testing.T) {
 }
 
 func TestPassKeyringKeysWhenEmpty(t *testing.T) {
-	k, teardown := setup(t)
+	k, teardown := setup(t, false)
 	defer teardown(t)
 
 	keys, err := k.Keys()
@@ -100,7 +129,7 @@ func TestPassKeyringKeysWhenEmpty(t *testing.T) {
 }
 
 func TestPassKeyringKeysWhenNotEmpty(t *testing.T) {
-	k, teardown := setup(t)
+	k, teardown := setup(t, false)
 	defer teardown(t)
 
 	items := []Item{
@@ -136,7 +165,7 @@ func TestPassKeyringKeysWhenNotEmpty(t *testing.T) {
 }
 
 func TestPassKeyringRemoveWhenEmpty(t *testing.T) {
-	k, teardown := setup(t)
+	k, teardown := setup(t, false)
 	defer teardown(t)
 
 	err := k.Remove("no-such-key")
@@ -146,7 +175,7 @@ func TestPassKeyringRemoveWhenEmpty(t *testing.T) {
 }
 
 func TestPassKeyringRemoveWhenNotEmpty(t *testing.T) {
-	k, teardown := setup(t)
+	k, teardown := setup(t, false)
 	defer teardown(t)
 
 	item := Item{Key: "llamas", Data: []byte("llamas are great")}
@@ -170,7 +199,7 @@ func TestPassKeyringRemoveWhenNotEmpty(t *testing.T) {
 }
 
 func TestPassKeyringGetWhenEmpty(t *testing.T) {
-	k, teardown := setup(t)
+	k, teardown := setup(t, false)
 	defer teardown(t)
 
 	_, err := k.Get("no-such-key")
@@ -180,7 +209,7 @@ func TestPassKeyringGetWhenEmpty(t *testing.T) {
 }
 
 func TestPassKeyringGetWhenNotEmpty(t *testing.T) {
-	k, teardown := setup(t)
+	k, teardown := setup(t, false)
 	defer teardown(t)
 
 	item := Item{Key: "llamas", Data: []byte("llamas are great")}
@@ -195,5 +224,42 @@ func TestPassKeyringGetWhenNotEmpty(t *testing.T) {
 	}
 	if !bytes.Equal(v1.Data, item.Data) {
 		t.Fatal("Expected item not returned")
+	}
+}
+
+func TestPassKeyringKeysWhenNotEmptySymlink(t *testing.T) {
+	// create a symlink to the password store
+	k, teardown := setup(t, true)
+	defer teardown(t)
+
+	items := []Item{
+		{Key: "robin", Data: []byte("redbreast trush")},
+		{Key: "nightingale", Data: []byte("beautiful song")},
+		{Key: "eurasian/skylark", Data: []byte("extravagant song")},
+	}
+
+	for _, item := range items {
+		if err := k.Set(item); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	keys, err := k.Keys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(keys) != len(items) {
+		t.Fatalf("Expected %d keys, got %d", len(items), len(keys))
+	}
+
+	expectedKeys := []string{
+		"eurasian/skylark",
+		"nightingale",
+		"robin",
+	}
+
+	if !reflect.DeepEqual(keys, expectedKeys) {
+		t.Fatalf("Expected keys %v, got %v", expectedKeys, keys)
 	}
 }
