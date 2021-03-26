@@ -107,7 +107,7 @@ func (k *kwalletKeyring) Get(key string) (Item, error) {
 // found in docs for methods to use to retrieve metadata without needing unlock
 // credentials.
 func (k *kwalletKeyring) GetMetadata(_ string) (Metadata, error) {
-	return Metadata{}, ErrMetadataNeedsCredentials
+	return Metadata{}, ErrNoAvailImpl
 }
 
 func (k *kwalletKeyring) Set(item Item) error {
