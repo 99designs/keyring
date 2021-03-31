@@ -3,8 +3,11 @@
 package keyring
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"errors"
+
+	"strings"
 
 	"github.com/godbus/dbus"
 	"github.com/gsterjov/go-libsecret"
@@ -56,6 +59,28 @@ func (e *secretsError) Error() string {
 
 var errCollectionNotFound = errors.New("The collection does not exist. Please add a key first")
 
+func decodeKeyringString(src string) string {
+
+	var dst strings.Builder
+	for i := 0; i < len(src); i++ {
+		if src[i] != '_' {
+			dst.WriteString(string(src[i]))
+		} else {
+			if i+3 > len(src) {
+				return src
+			}
+			hexstring := src[i+1 : i+3]
+			decoded, err := hex.DecodeString(hexstring)
+			if err != nil {
+				return src
+			}
+			dst.Write(decoded)
+			i += 2
+		}
+	}
+	return dst.String()
+}
+
 func (k *secretsKeyring) openSecrets() error {
 	session, err := k.service.Open()
 	if err != nil {
@@ -72,7 +97,7 @@ func (k *secretsKeyring) openSecrets() error {
 	path := libsecret.DBusPath + "/collection/" + k.name
 
 	for _, collection := range collections {
-		if string(collection.Path()) == path {
+		if decodeKeyringString(string(collection.Path())) == path {
 			k.collection = &collection
 			return nil
 		}
