@@ -141,3 +141,26 @@ func TestLibSecretRemoveWhenNotEmpty(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestLibSpecialCharacters(t *testing.T) {
+
+	decoded := decodeKeyringString("keyring_2dtest")
+	if decoded != "keyring-test" {
+		t.Fatal("incorrect decodeKeyringString")
+	}
+
+	decoded = decodeKeyringString("keyring_2d_2dtest")
+	if decoded != "keyring--test" {
+		t.Fatal("incorrect decodeKeyringString")
+	}
+
+	decoded = decodeKeyringString("keyring_2dtest_2d_2d")
+	if decoded != "keyring-test--" {
+		t.Fatal("incorrect decodeKeyringString")
+	}
+
+	decoded = decodeKeyringString("_2d_2dkeyring_2dtest_2d_2d")
+	if decoded != "--keyring-test--" {
+		t.Fatal("incorrect decodeKeyringString")
+	}
+}
