@@ -5,6 +5,7 @@ package keyring
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	"github.com/godbus/dbus"
 	"github.com/gsterjov/go-libsecret"
@@ -56,6 +57,18 @@ func (e *secretsError) Error() string {
 
 var errCollectionNotFound = errors.New("The collection does not exist. Please add a key first")
 
+func secretservice_path_escape(path string) string {
+	output_buffer := make([]byte, 0, 2*len(path))
+	for _, item := range path {
+		if (item >= 'a' && item <= 'z') || (item >= 'A' && item <= 'Z') || (item >= '0' && item <= '9') {
+			output_buffer = append(output_buffer, byte(item))
+		} else {
+			output_buffer = append(output_buffer, fmt.Sprintf("_%02x", int(item))...)
+		}
+	}
+	return string(output_buffer)
+}
+
 func (k *secretsKeyring) openSecrets() error {
 	session, err := k.service.Open()
 	if err != nil {
@@ -69,7 +82,7 @@ func (k *secretsKeyring) openSecrets() error {
 		return err
 	}
 
-	path := libsecret.DBusPath + "/collection/" + k.name
+	path := libsecret.DBusPath + "/collection/" + secretservice_path_escape(k.name)
 
 	for _, collection := range collections {
 		if string(collection.Path()) == path {
