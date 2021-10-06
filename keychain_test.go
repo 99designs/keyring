@@ -17,7 +17,7 @@ func TestOSXKeychainKeyringSet(t *testing.T) {
 
 	k := &keychain{
 		path:         path,
-		passwordFunc: fixedStringPrompt("test password"),
+		passwordFunc: FixedStringPrompt("test password"),
 		service:      "test",
 		isTrusted:    true,
 	}
@@ -57,7 +57,7 @@ func TestOSXKeychainKeyringOverwrite(t *testing.T) {
 
 	k := &keychain{
 		path:         path,
-		passwordFunc: fixedStringPrompt("test password"),
+		passwordFunc: FixedStringPrompt("test password"),
 		service:      "test",
 		isTrusted:    true,
 	}
@@ -110,7 +110,7 @@ func TestOSXKeychainKeyringListKeysWhenEmpty(t *testing.T) {
 	k := &keychain{
 		path:         path,
 		service:      "test",
-		passwordFunc: fixedStringPrompt("test password"),
+		passwordFunc: FixedStringPrompt("test password"),
 		isTrusted:    true,
 	}
 
@@ -130,7 +130,7 @@ func TestOSXKeychainKeyringListKeysWhenNotEmpty(t *testing.T) {
 	k := &keychain{
 		path:         path,
 		service:      "test",
-		passwordFunc: fixedStringPrompt("test password"),
+		passwordFunc: FixedStringPrompt("test password"),
 		isTrusted:    true,
 	}
 
@@ -175,7 +175,7 @@ func TestOSXKeychainGetKeyWhenEmpty(t *testing.T) {
 
 	k := &keychain{
 		path:         path,
-		passwordFunc: fixedStringPrompt("test password"),
+		passwordFunc: FixedStringPrompt("test password"),
 		service:      "test",
 		isTrusted:    true,
 	}
@@ -192,7 +192,7 @@ func TestOSXKeychainGetKeyWhenNotEmpty(t *testing.T) {
 
 	k := &keychain{
 		path:         path,
-		passwordFunc: fixedStringPrompt("test password"),
+		passwordFunc: FixedStringPrompt("test password"),
 		service:      "test",
 		isTrusted:    true,
 	}
@@ -222,7 +222,7 @@ func TestOSXKeychainRemoveKeyWhenEmpty(t *testing.T) {
 
 	k := &keychain{
 		path:         path,
-		passwordFunc: fixedStringPrompt("test password"),
+		passwordFunc: FixedStringPrompt("test password"),
 		service:      "test",
 		isTrusted:    true,
 	}
@@ -239,7 +239,7 @@ func TestOSXKeychainRemoveKeyWhenNotEmpty(t *testing.T) {
 
 	k := &keychain{
 		path:         path,
-		passwordFunc: fixedStringPrompt("test password"),
+		passwordFunc: FixedStringPrompt("test password"),
 		service:      "test",
 		isTrusted:    true,
 	}

@@ -8,7 +8,7 @@ import (
 func TestFileKeyringSetWhenEmpty(t *testing.T) {
 	k := &fileKeyring{
 		dir:          os.TempDir(),
-		passwordFunc: fixedStringPrompt("no more secrets"),
+		passwordFunc: FixedStringPrompt("no more secrets"),
 	}
 	item := Item{Key: "llamas", Data: []byte("llamas are great")}
 
@@ -33,7 +33,7 @@ func TestFileKeyringSetWhenEmpty(t *testing.T) {
 func TestFileKeyringGetWithSlashes(t *testing.T) {
 	k := &fileKeyring{
 		dir:          os.TempDir(),
-		passwordFunc: fixedStringPrompt("no more secrets"),
+		passwordFunc: FixedStringPrompt("no more secrets"),
 	}
 
 	item := Item{Key: "https://aws-sso-portal.awsapps.com/start", Data: []byte("https://aws-sso-portal.awsapps.com/start")}
