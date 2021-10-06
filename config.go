@@ -29,6 +29,12 @@ type Config struct {
 	// FileDir is the directory that keyring files are stored in, ~ is resolved to home dir
 	FileDir string
 
+	// KeyCtlScope is the scope of the kernel keyring (either "user", "session", "process" or "thread")
+	KeyCtlScope string
+
+	// KeyCtlPerm is the permission mask to use for new keys
+	KeyCtlPerm uint32
+
 	// KWalletAppID is the application id for KWallet
 	KWalletAppID string
 
