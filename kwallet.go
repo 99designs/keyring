@@ -95,7 +95,6 @@ func (k *kwalletKeyring) Get(key string) (Item, error) {
 		return Item{}, ErrKeyNotFound
 	}
 
-
 	item := Item{}
 	err = json.Unmarshal(data, &item)
 	if err != nil {
