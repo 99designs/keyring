@@ -5,7 +5,7 @@ package keyring
 
 import (
 	"bytes"
-	"io/ioutil"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -13,13 +13,24 @@ import (
 	"testing"
 )
 
+func runCmd(t *testing.T, cmds ...string) {
+	cmd := exec.Command(cmds[0], cmds[1:]...)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println(cmd)
+		fmt.Println(string(out))
+		t.Fatal(err)
+	}
+}
+
 func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 	pwd, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	tmpdir, err := ioutil.TempDir("", "keyring-pass-test")
+	// the default temp directory can't be used because gpg-agent complains with "socket name too long"
+	tmpdir, err := os.MkdirTemp("/tmp", "keyring-pass-test-*")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,16 +41,8 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 	os.Setenv("GNUPGHOME", gnupghome)
 	os.Unsetenv("GPG_AGENT_INFO")
 	os.Unsetenv("GPG_TTY")
-	cmd := exec.Command("gpg", "--import", filepath.Join(pwd, "testdata", "test-gpg.key"))
-	err = cmd.Run()
-	if err != nil {
-		t.Fatal(err)
-	}
-	cmd = exec.Command("gpg", "--import-ownertrust", filepath.Join(pwd, "testdata", "test-ownertrust-gpg.txt"))
-	err = cmd.Run()
-	if err != nil {
-		t.Fatal(err)
-	}
+	runCmd(t, "gpg", "--import", filepath.Join(pwd, "testdata", "test-gpg.key"))
+	runCmd(t, "gpg", "--import-ownertrust", filepath.Join(pwd, "testdata", "test-ownertrust-gpg.txt"))
 
 	passdir := filepath.Join(tmpdir, ".password-store")
 	k := &passKeyring{
@@ -48,7 +51,7 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 		prefix:  "keyring",
 	}
 
-	cmd, err = k.pass("init", "test@example.com")
+	cmd, err := k.pass("init", "test@example.com")
 	if err != nil {
 		t.Fatal(err)
 	}
