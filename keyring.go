@@ -4,6 +4,7 @@
 package keyring
 
 import (
+	"bytes"
 	"errors"
 	"log"
 	"time"
@@ -22,6 +23,7 @@ const (
 	WinCredBackend       BackendType = "wincred"
 	FileBackend          BackendType = "file"
 	PassBackend          BackendType = "pass"
+	MemoryBackend BackendType = "memory"
 )
 
 // This order makes sure the OS-specific backends
@@ -38,6 +40,7 @@ var backendOrder = []BackendType{
 	// General
 	PassBackend,
 	FileBackend,
+	MemoryBackend,
 }
 
 var supportedBackends = map[BackendType]opener{}
@@ -85,6 +88,17 @@ type Item struct {
 	// Backend specific config
 	KeychainNotTrustApplication bool
 	KeychainNotSynchronizable   bool
+}
+
+// Equals will return true if the current item is equal to the supplied item.
+func (i Item) Equals(other Item) bool {
+
+	return i.Key == other.Key &&
+		bytes.Equal(i.Data, other.Data) &&
+		i.Label == other.Label &&
+		i.Description == other.Description &&
+		i.KeychainNotTrustApplication == other.KeychainNotTrustApplication &&
+		i.KeychainNotSynchronizable == other.KeychainNotSynchronizable
 }
 
 // Metadata is information about a thing stored on the keyring; retrieving
