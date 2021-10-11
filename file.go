@@ -67,7 +67,7 @@ func (k *fileKeyring) unlock() error {
 	}
 
 	if k.password == "" {
-		pwd, err := k.passwordFunc(fmt.Sprintf("Enter passphrase to unlock %s", dir))
+		pwd, err := k.passwordFunc(fmt.Sprintf("Enter passphrase to unlock %q", dir))
 		if err != nil {
 			return err
 		}

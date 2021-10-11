@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package keyring
@@ -57,7 +58,7 @@ func (k *windowsKeyring) Get(key string) (Item, error) {
 // for this backend.
 // TODO: This is a stub. Look into whether pass would support metadata in a usable way for keyring.
 func (k *windowsKeyring) GetMetadata(_ string) (Metadata, error) {
-	return Metadata{}, ErrMetadataNeedsCredentials
+	return Metadata{}, ErrMetadataNotSupported
 }
 
 func (k *windowsKeyring) Set(item Item) error {
