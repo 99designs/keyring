@@ -202,3 +202,46 @@ func TestPassKeyringGetWhenNotEmpty(t *testing.T) {
 		t.Fatal("Expected item not returned")
 	}
 }
+
+func TestPassKeyringKeysWithSymlink(t *testing.T) {
+	k, teardown := setup(t)
+	defer teardown(t)
+
+	items := []Item{
+		{Key: "llamas", Data: []byte("llamas are great")},
+		{Key: "alpacas", Data: []byte("alpacas are better")},
+		{Key: "africa/elephants", Data: []byte("who doesn't like elephants")},
+	}
+
+	for _, item := range items {
+		if err := k.Set(item); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	s := filepath.Join(t.TempDir(), "newsymlink")
+	err := os.Symlink(k.dir, s)
+	if err != nil {
+		t.Fatal(err)
+	}
+	k.dir = s
+
+	keys, err := k.Keys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(keys) != len(items) {
+		t.Fatalf("Expected %d keys, got %d", len(items), len(keys))
+	}
+
+	expectedKeys := []string{
+		"africa/elephants",
+		"alpacas",
+		"llamas",
+	}
+
+	if !reflect.DeepEqual(keys, expectedKeys) {
+		t.Fatalf("Expected keys %v, got %v", expectedKeys, keys)
+	}
+}
