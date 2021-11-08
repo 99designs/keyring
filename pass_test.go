@@ -219,8 +219,14 @@ func TestPassKeyringKeysWithSymlink(t *testing.T) {
 		}
 	}
 
-	s := filepath.Join(t.TempDir(), "newsymlink")
-	err := os.Symlink(k.dir, s)
+	// Create a symlink named "newsymlink" in a new temp dir for this test.
+	tmpdir, err := ioutil.TempDir("/tmp", "keyring-pass-test-symlink-*")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpdir)
+	s := filepath.Join(tmpdir, "newsymlink")
+	err = os.Symlink(k.dir, s)
 	if err != nil {
 		t.Fatal(err)
 	}
