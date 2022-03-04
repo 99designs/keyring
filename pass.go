@@ -24,7 +24,11 @@ func init() {
 			pass.passcmd = "pass"
 		}
 		if cfg.PassDir == "" {
-			pass.dir = filepath.Join(os.Getenv("HOME"), ".password-store")
+			if passDir, found := os.LookupEnv("PASSWORD_STORE_DIR"); found {
+				pass.dir = passDir
+			} else {
+				pass.dir = filepath.Join(os.Getenv("HOME"), ".password-store")
+			}
 		} else if strings.HasPrefix(pass.dir, "~") {
 			if len(pass.dir) > 1 && pass.dir[1] != '/' {
 				return nil, fmt.Errorf("Cannot expand path: %s", pass.dir)
