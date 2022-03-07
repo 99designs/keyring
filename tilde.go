@@ -6,10 +6,9 @@ import (
 	"strings"
 )
 
-// ~/ or ~\ depending on OS
 var tildePrefix = string([]rune{'~', filepath.Separator})
 
-// expand tilde for home directory
+// ExpandTilde will expand tilde (~/ or ~\ depending on OS) for the user home directory.
 func ExpandTilde(dir string) (string, error) {
 	if strings.HasPrefix(dir, tildePrefix) {
 		homeDir, err := os.UserHomeDir()

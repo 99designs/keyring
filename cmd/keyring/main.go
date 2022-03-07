@@ -104,5 +104,6 @@ func hasBackend(key string) bool {
 			return true
 		}
 	}
+
 	return false
 }

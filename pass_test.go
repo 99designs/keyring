@@ -15,6 +15,7 @@ import (
 )
 
 func runCmd(t *testing.T, cmds ...string) {
+	t.Helper()
 	cmd := exec.Command(cmds[0], cmds[1:]...)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -25,6 +26,8 @@ func runCmd(t *testing.T, cmds ...string) {
 }
 
 func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
+	t.Helper()
+
 	pwd, err := os.Getwd()
 	if err != nil {
 		t.Fatal(err)
@@ -38,7 +41,10 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 
 	// Initialise a blank GPG homedir; import & trust the test key
 	gnupghome := filepath.Join(tmpdir, ".gnupg")
-	os.Mkdir(gnupghome, os.FileMode(int(0700)))
+	err = os.Mkdir(gnupghome, os.FileMode(int(0700)))
+	if err != nil {
+		t.Fatal(err)
+	}
 	os.Setenv("GNUPGHOME", gnupghome)
 	os.Unsetenv("GPG_AGENT_INFO")
 	os.Unsetenv("GPG_TTY")
@@ -52,10 +58,7 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 		prefix:  "keyring",
 	}
 
-	cmd, err := k.pass("init", "test@example.com")
-	if err != nil {
-		t.Fatal(err)
-	}
+	cmd := k.pass("init", "test@example.com")
 	cmd.Stderr = os.Stderr
 	err = cmd.Run()
 	if err != nil {
@@ -63,6 +66,7 @@ func setup(t *testing.T) (*passKeyring, func(t *testing.T)) {
 	}
 
 	return k, func(t *testing.T) {
+		t.Helper()
 		os.RemoveAll(tmpdir)
 	}
 }

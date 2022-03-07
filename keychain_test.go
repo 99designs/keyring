@@ -14,7 +14,7 @@ import (
 
 func TestOSXKeychainKeyringSet(t *testing.T) {
 	path := tempPath()
-	defer deleteKeychain(path, t)
+	defer deleteKeychain(t, path)
 
 	k := &keychain{
 		path:         path,
@@ -43,18 +43,18 @@ func TestOSXKeychainKeyringSet(t *testing.T) {
 		t.Fatalf("Data stored was not the data retrieved: %q vs %q", v.Data, item.Data)
 	}
 
-	if string(v.Key) != item.Key {
+	if v.Key != item.Key {
 		t.Fatalf("Key stored was not the data retrieved: %q vs %q", v.Key, item.Key)
 	}
 
-	if string(v.Description) != item.Description {
+	if v.Description != item.Description {
 		t.Fatalf("Description stored was not the data retrieved: %q vs %q", v.Description, item.Description)
 	}
 }
 
 func TestOSXKeychainKeyringOverwrite(t *testing.T) {
 	path := tempPath()
-	defer deleteKeychain(path, t)
+	defer deleteKeychain(t, path)
 
 	k := &keychain{
 		path:         path,
@@ -106,7 +106,7 @@ func TestOSXKeychainKeyringOverwrite(t *testing.T) {
 
 func TestOSXKeychainKeyringListKeysWhenEmpty(t *testing.T) {
 	path := tempPath()
-	defer deleteKeychain(path, t)
+	defer deleteKeychain(t, path)
 
 	k := &keychain{
 		path:         path,
@@ -126,7 +126,7 @@ func TestOSXKeychainKeyringListKeysWhenEmpty(t *testing.T) {
 
 func TestOSXKeychainKeyringListKeysWhenNotEmpty(t *testing.T) {
 	path := tempPath()
-	defer deleteKeychain(path, t)
+	defer deleteKeychain(t, path)
 
 	k := &keychain{
 		path:         path,
@@ -158,7 +158,9 @@ func TestOSXKeychainKeyringListKeysWhenNotEmpty(t *testing.T) {
 	}
 }
 
-func deleteKeychain(path string, t *testing.T) {
+func deleteKeychain(t *testing.T, path string) {
+	t.Helper()
+
 	if _, err := os.Stat(path); os.IsExist(err) {
 		_ = os.Remove(path)
 	}
@@ -172,7 +174,7 @@ func deleteKeychain(path string, t *testing.T) {
 
 func TestOSXKeychainGetKeyWhenEmpty(t *testing.T) {
 	path := tempPath()
-	defer deleteKeychain(path, t)
+	defer deleteKeychain(t, path)
 
 	k := &keychain{
 		path:         path,
@@ -189,7 +191,7 @@ func TestOSXKeychainGetKeyWhenEmpty(t *testing.T) {
 
 func TestOSXKeychainGetKeyWhenNotEmpty(t *testing.T) {
 	path := tempPath()
-	defer deleteKeychain(path, t)
+	defer deleteKeychain(t, path)
 
 	k := &keychain{
 		path:         path,
@@ -219,7 +221,7 @@ func TestOSXKeychainGetKeyWhenNotEmpty(t *testing.T) {
 
 func TestOSXKeychainRemoveKeyWhenEmpty(t *testing.T) {
 	path := tempPath()
-	defer deleteKeychain(path, t)
+	defer deleteKeychain(t, path)
 
 	k := &keychain{
 		path:         path,
@@ -236,7 +238,7 @@ func TestOSXKeychainRemoveKeyWhenEmpty(t *testing.T) {
 
 func TestOSXKeychainRemoveKeyWhenNotEmpty(t *testing.T) {
 	path := tempPath()
-	defer deleteKeychain(path, t)
+	defer deleteKeychain(t, path)
 
 	k := &keychain{
 		path:         path,

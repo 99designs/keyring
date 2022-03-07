@@ -35,7 +35,7 @@ func getRandomKeyringName(length int) string {
 func doesNamedKeyringExist() (bool, error) {
 	ringparentID, err := keyring.GetKeyringIDForScope(ringparent)
 	if err != nil {
-		return false, nil
+		return false, nil //nolint:nilerr
 	}
 
 	_, err = unix.KeyctlSearch(int(ringparentID), "keyring", ringname, 0)
@@ -55,7 +55,7 @@ func cleanupNamedKeyring() {
 	if err != nil {
 		return
 	}
-	_, _, err = syscall.Syscall(syscall.SYS_KEYCTL, uintptr(unix.KEYCTL_UNLINK), uintptr(named), uintptr(ringparentID))
+	_, _, _ = syscall.Syscall(syscall.SYS_KEYCTL, uintptr(unix.KEYCTL_UNLINK), uintptr(named), uintptr(ringparentID))
 }
 
 func TestKeyCtlIsAvailable(t *testing.T) {
