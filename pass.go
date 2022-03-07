@@ -15,33 +15,37 @@ import (
 
 func init() {
 	supportedBackends[PassBackend] = opener(func(cfg Config) (Keyring, error) {
+		var err error
+
 		pass := &passKeyring{
 			passcmd: cfg.PassCmd,
 			dir:     cfg.PassDir,
 			prefix:  cfg.PassPrefix,
 		}
-		if cfg.PassCmd == "" {
+
+		if pass.passcmd == "" {
 			pass.passcmd = "pass"
 		}
-		if cfg.PassDir == "" {
+
+		if pass.dir == "" {
 			if passDir, found := os.LookupEnv("PASSWORD_STORE_DIR"); found {
 				pass.dir = passDir
 			} else {
-				pass.dir = filepath.Join(os.Getenv("HOME"), ".password-store")
+				homeDir, err := os.UserHomeDir()
+				if err != nil {
+					return nil, err
+				}
+				pass.dir = filepath.Join(homeDir, ".password-store")
 			}
-		} else if strings.HasPrefix(pass.dir, "~") {
-			if len(pass.dir) > 1 && pass.dir[1] != '/' {
-				return nil, fmt.Errorf("Cannot expand path: %s", pass.dir)
-			}
-			home, err := os.UserHomeDir()
-			if err != nil {
-				return nil, err
-			}
-			pass.dir = filepath.Join(home, pass.dir[1:])
+		}
+
+		pass.dir, err = ExpandTilde(pass.dir)
+		if err != nil {
+			return nil, err
 		}
 
 		// fail if the pass program is not available
-		_, err := exec.LookPath(pass.passcmd)
+		_, err = exec.LookPath(pass.passcmd)
 		if err != nil {
 			return nil, errors.New("The pass program is not available")
 		}

@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 	"time"
 
 	jose "github.com/dvsekhvalnov/jose2go"
@@ -38,16 +37,9 @@ func (k *fileKeyring) resolveDir() (string, error) {
 		return "", fmt.Errorf("No directory provided for file keyring")
 	}
 
-	dir := k.dir
-
-	// expand tilde for home directory
-	if strings.HasPrefix(dir, "~") {
-		home, err := os.UserHomeDir()
-		if err != nil {
-			return "", err
-		}
-		dir = strings.Replace(dir, "~", home, 1)
-		debugf("Expanded file dir to %s", dir)
+	dir, err := ExpandTilde(k.dir)
+	if err != nil {
+		return "", err
 	}
 
 	stat, err := os.Stat(dir)
