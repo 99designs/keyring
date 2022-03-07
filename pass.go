@@ -60,14 +60,14 @@ type passKeyring struct {
 	prefix  string
 }
 
-func (k *passKeyring) pass(args ...string) (*exec.Cmd, error) {
+func (k *passKeyring) pass(args ...string) *exec.Cmd {
 	cmd := exec.Command(k.passcmd, args...)
 	if k.dir != "" {
 		cmd.Env = append(os.Environ(), fmt.Sprintf("PASSWORD_STORE_DIR=%s", k.dir))
 	}
 	cmd.Stderr = os.Stderr
 
-	return cmd, nil
+	return cmd
 }
 
 func (k *passKeyring) Get(key string) (Item, error) {
@@ -76,11 +76,7 @@ func (k *passKeyring) Get(key string) (Item, error) {
 	}
 
 	name := filepath.Join(k.prefix, key)
-	cmd, err := k.pass("show", name)
-	if err != nil {
-		return Item{}, err
-	}
-
+	cmd := k.pass("show", name)
 	output, err := cmd.Output()
 	if err != nil {
 		return Item{}, err
@@ -103,11 +99,7 @@ func (k *passKeyring) Set(i Item) error {
 	}
 
 	name := filepath.Join(k.prefix, i.Key)
-	cmd, err := k.pass("insert", "-m", "-f", name)
-	if err != nil {
-		return err
-	}
-
+	cmd := k.pass("insert", "-m", "-f", name)
 	cmd.Stdin = strings.NewReader(string(bytes))
 
 	err = cmd.Run()
@@ -124,12 +116,8 @@ func (k *passKeyring) Remove(key string) error {
 	}
 
 	name := filepath.Join(k.prefix, key)
-	cmd, err := k.pass("rm", "-f", name)
-	if err != nil {
-		return err
-	}
-
-	err = cmd.Run()
+	cmd := k.pass("rm", "-f", name)
+	err := cmd.Run()
 	if err != nil {
 		return err
 	}
@@ -140,10 +128,8 @@ func (k *passKeyring) Remove(key string) error {
 func (k *passKeyring) itemExists(key string) bool {
 	var path = filepath.Join(k.dir, k.prefix, key+".gpg")
 	_, err := os.Stat(path)
-	if err != nil {
-		return false
-	}
-	return true
+
+	return err == nil
 }
 
 func (k *passKeyring) Keys() ([]string, error) {

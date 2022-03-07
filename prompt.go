@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"os"
 
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
-// PromptFunc is a function used to prompt the user for a password
+// PromptFunc is a function used to prompt the user for a password.
 type PromptFunc func(string) (string, error)
 
 func TerminalPrompt(prompt string) (string, error) {
 	fmt.Printf("%s: ", prompt)
-	b, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+	b, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return "", err
 	}

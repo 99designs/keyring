@@ -16,7 +16,6 @@ const (
 )
 
 func init() {
-
 	if os.Getenv("DISABLE_KWALLET") == "1" {
 		return
 	}
@@ -172,7 +171,7 @@ func newKwallet() (*kwalletBinding, error) {
 	}, nil
 }
 
-// Dumb Dbus bindings for kwallet bindings with types
+// Dumb Dbus bindings for kwallet bindings with types.
 type kwalletBinding struct {
 	dbus dbus.BusObject
 }

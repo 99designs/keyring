@@ -50,18 +50,9 @@ type secretsKeyring struct {
 	session    *libsecret.Session
 }
 
-type secretsError struct {
-	message string
-}
-
-func (e *secretsError) Error() string {
-	return e.message
-}
-
 var errCollectionNotFound = errors.New("The collection does not exist. Please add a key first")
 
 func decodeKeyringString(src string) string {
-
 	var dst strings.Builder
 	for i := 0; i < len(src); i++ {
 		if src[i] != '_' {
@@ -99,7 +90,8 @@ func (k *secretsKeyring) openSecrets() error {
 
 	for _, collection := range collections {
 		if decodeKeyringString(string(collection.Path())) == path {
-			k.collection = &collection
+			c := collection // fix variable into the local variable to ensure it's referenced correctly, see https://github.com/kyoh86/exportloopref
+			k.collection = &c
 			return nil
 		}
 	}
@@ -272,11 +264,9 @@ func (k *secretsKeyring) Keys() ([]string, error) {
 	}
 	keys := []string{}
 	for _, item := range items {
-		label, err := item.Label()
+		label, err := item.Label() // FIXME: err is being silently ignored
 		if err == nil {
 			keys = append(keys, label)
-		} else {
-			// err is being silently ignored here, not sure if that's good or bad
 		}
 	}
 	return keys, nil

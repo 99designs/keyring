@@ -11,6 +11,9 @@ func ExampleOpen() {
 	kr, err := keyring.Open(keyring.Config{
 		ServiceName: "my-service",
 	})
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	v, err := kr.Get("llamas")
 	if err != nil {
