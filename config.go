@@ -26,7 +26,7 @@ type Config struct {
 	// FilePasswordFunc is a required function used to prompt the user for a password
 	FilePasswordFunc PromptFunc
 
-	// FileDir is the directory that keyring files are stored in, ~ is resolved to home dir
+	// FileDir is the directory that keyring files are stored in, ~/ is resolved to the users' home dir
 	FileDir string
 
 	// KeyCtlScope is the scope of the kernel keyring (either "user", "session", "process" or "thread")
@@ -44,7 +44,7 @@ type Config struct {
 	// LibSecretCollectionName is the name collection in secret-service
 	LibSecretCollectionName string
 
-	// PassDir is the pass password-store directory
+	// PassDir is the pass password-store directory, ~/ is resolved to the users' home dir
 	PassDir string
 
 	// PassCmd is the name of the pass executable
