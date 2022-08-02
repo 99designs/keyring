@@ -122,6 +122,9 @@ var ErrMetadataNeedsCredentials = errors.New("The keyring backend requires crede
 // ErrMetadataNotSupported is returned when Metadata is not available for the backend.
 var ErrMetadataNotSupported = errors.New("The keyring backend does not support metadata access")
 
+// ErrAccessDenied is returned by Keyring Get when access to Keychain is denied by the user
+var ErrAccessDenied = errors.New("Keyring backend access denied by user")
+
 var (
 	// Debug specifies whether to print debugging output.
 	Debug bool
