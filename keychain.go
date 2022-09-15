@@ -6,8 +6,10 @@ package keyring
 import (
 	"errors"
 	"fmt"
+	"os"
 
 	gokeychain "github.com/99designs/go-keychain"
+	"golang.org/x/crypto/ssh/terminal"
 
 	"github.com/lox/go-touchid"
 )
@@ -363,9 +365,24 @@ func (k *keychain) openWithTouchID() (gokeychain.Keychain, error) {
 func (k *keychain) setupTouchID() (gokeychain.Keychain, error) {
 	fmt.Println("\nTo use Touch ID for authentication, your keychain password needs to be stored in your login keychain.\n" +
 		"You will be prompted for your password.\n")
-	passphrase, err := k.passwordFunc(fmt.Sprintf("Enter passphrase for %q", k.path))
-	if err != nil {
-		return gokeychain.Keychain{}, fmt.Errorf("failed to get password: %v", err)
+
+	var passphrase string
+	if k.passwordFunc == nil {
+		debugf("Creating keychain %s with prompt", k.path)
+		fmt.Printf("Password for %q: ", k.path)
+		passphraseBytes, err := terminal.ReadPassword(int(os.Stdin.Fd()))
+		if err != nil {
+			return gokeychain.Keychain{}, fmt.Errorf("failed to read password: %v", err)
+		}
+
+		passphrase = string(passphraseBytes)
+		return gokeychain.NewKeychainWithPrompt(k.path)
+	} else {
+		var err error
+		passphrase, err = k.passwordFunc(fmt.Sprintf("Enter passphrase for %q", k.path))
+		if err != nil {
+			return gokeychain.Keychain{}, fmt.Errorf("failed to get password: %v", err)
+		}
 	}
 
 	fmt.Println()
