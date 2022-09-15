@@ -8,6 +8,14 @@ import (
 	"fmt"
 
 	gokeychain "github.com/99designs/go-keychain"
+
+	"github.com/lox/go-touchid"
+)
+
+const (
+	biometricsAccount = "com.99designs.aws-vault.biometrics"
+	biometricsService = "aws-vault"
+	biometricsLabel   = "Passphrase for %s"
 )
 
 type keychain struct {
@@ -19,6 +27,9 @@ type keychain struct {
 	isSynchronizable         bool
 	isAccessibleWhenUnlocked bool
 	isTrusted                bool
+
+	isTouchIDAuthenticated bool
+	useTouchID             bool
 }
 
 func init() {
@@ -31,6 +42,9 @@ func init() {
 			// KeychainAccessibleWhenUnlocked is a shorthand for setting the accessibility value.
 			// See: https://developer.apple.com/documentation/security/ksecattraccessiblewhenunlocked
 			isAccessibleWhenUnlocked: cfg.KeychainAccessibleWhenUnlocked,
+
+			isTouchIDAuthenticated: false,
+			useTouchID:             cfg.UseBiometrics,
 		}
 		if cfg.KeychainName != "" {
 			kc.path = cfg.KeychainName + ".keychain"
@@ -271,6 +285,9 @@ func (k *keychain) createOrOpen() (gokeychain.Keychain, error) {
 	debugf("Checking keychain status")
 	err := kc.Status()
 	if err == nil {
+		if k.useTouchID {
+			return k.openWithTouchID()
+		}
 		debugf("Keychain status returned nil, keychain exists")
 		return kc, nil
 	}
@@ -292,5 +309,89 @@ func (k *keychain) createOrOpen() (gokeychain.Keychain, error) {
 	}
 
 	debugf("Creating keychain %s with provided password", k.path)
+	return gokeychain.NewKeychain(k.path, passphrase)
+}
+
+func (k *keychain) openWithTouchID() (gokeychain.Keychain, error) {
+	if k.isTouchIDAuthenticated {
+		return gokeychain.NewWithPath(k.path), nil
+	}
+
+	debugf("checking with touchid")
+	ok, err := touchid.Authenticate("unlock " + k.path)
+	if err != nil {
+		return gokeychain.Keychain{}, fmt.Errorf("failed to authenticate with biometrics: %v", err)
+	}
+	if !ok {
+		return gokeychain.Keychain{}, fmt.Errorf("failed to authenticate with biometrics")
+	}
+
+	k.isTouchIDAuthenticated = true
+
+	debugf("looking up password in login.keychain")
+	query := gokeychain.NewItem()
+	query.SetSecClass(gokeychain.SecClassGenericPassword)
+	query.SetService(biometricsService)
+	query.SetAccount(biometricsAccount)
+	query.SetLabel(fmt.Sprintf(biometricsLabel, k.path))
+	query.SetMatchLimit(gokeychain.MatchLimitOne)
+	query.SetReturnData(true)
+
+	results, err := gokeychain.QueryItem(query)
+	if err != nil {
+		return gokeychain.Keychain{}, fmt.Errorf("failed to query keychain: %v", err)
+	}
+
+	if len(results) != 1 {
+		kc, err := k.setupTouchID()
+		if err != nil {
+			return gokeychain.Keychain{}, fmt.Errorf("failed to setup touchid: %v", err)
+		}
+		return kc, nil
+	} else {
+		debugf("found password in login.keychain, unlocking %s with stored password", k.path)
+		if err := gokeychain.UnlockAtPath(k.path, string(results[0].Data)); err != nil {
+			return gokeychain.Keychain{}, fmt.Errorf("failed to unlock keychain: %v", err)
+		}
+		passPhrase := string(results[0].Data)
+		return gokeychain.NewKeychain(k.path, passPhrase)
+	}
+
+	return gokeychain.NewWithPath(k.path), nil
+}
+
+func (k *keychain) setupTouchID() (gokeychain.Keychain, error) {
+	fmt.Println("\nTo use Touch ID for authentication, your keychain password needs to be stored in your login keychain.\n" +
+		"You will be prompted for your password.\n")
+	passphrase, err := k.passwordFunc(fmt.Sprintf("Enter passphrase for %q", k.path))
+	if err != nil {
+		return gokeychain.Keychain{}, fmt.Errorf("failed to get password: %v", err)
+	}
+
+	fmt.Println()
+	debugf("locking keychain %s", k.path)
+	if err := gokeychain.LockAtPath(k.path); err != nil {
+		return gokeychain.Keychain{}, fmt.Errorf("failed to lock keychain: %v", err)
+	}
+
+	debugf("unlocking keychain %s", k.path)
+	if err := gokeychain.UnlockAtPath(k.path, passphrase); err != nil {
+		return gokeychain.Keychain{}, fmt.Errorf("failed to unlock keychain: %v", err)
+	}
+
+	item := gokeychain.NewItem()
+	item.SetSecClass(gokeychain.SecClassGenericPassword)
+	item.SetService(biometricsService)
+	item.SetAccount(biometricsAccount)
+	item.SetLabel(fmt.Sprintf(biometricsLabel, k.path))
+	item.SetData([]byte(passphrase))
+	item.SetSynchronizable(gokeychain.SynchronizableNo)
+	item.SetAccessible(gokeychain.AccessibleWhenUnlocked)
+
+	debugf("Adding service=%q, account=%q to osx keychain %s", biometricsService, biometricsAccount, k.path)
+	if err := gokeychain.AddItem(item); err != nil {
+		return gokeychain.Keychain{}, fmt.Errorf("failed to add item to keychain: %v", err)
+	}
+
 	return gokeychain.NewKeychain(k.path, passphrase)
 }

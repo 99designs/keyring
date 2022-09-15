@@ -55,4 +55,5 @@ type Config struct {
 
 	// WinCredPrefix is a string prefix to prepend to the key name
 	WinCredPrefix string
+	UseBiometrics bool
 }
