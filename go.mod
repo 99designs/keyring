@@ -8,8 +8,10 @@ require (
 	github.com/dvsekhvalnov/jose2go v1.5.0
 	github.com/godbus/dbus v0.0.0-20190726142602-4481cbc300e2
 	github.com/gsterjov/go-libsecret v0.0.0-20161001094733-a6f4afe4910c
+	github.com/lox/go-touchid v0.0.0-20170712105233-619cc8e578d0
 	github.com/mtibben/percent v0.2.1
 	github.com/stretchr/testify v1.7.0
+	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90
 	golang.org/x/sys v0.0.0-20220204135822-1c1b9b1eba6a
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211
 )
