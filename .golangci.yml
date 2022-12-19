@@ -2,11 +2,9 @@ linters:
   enable:
     - bodyclose
     - contextcheck
-    - deadcode
     - depguard
     - durationcheck
     - dupl
-    - errcheck
     - errchkjson
     - errname
     - exhaustive
@@ -14,9 +12,6 @@ linters:
     - gocritic
     - gofmt
     - goimports
-    - gosimple
-    - govet
-    - ineffassign
     - makezero
     - misspell
     - nakedret
@@ -26,14 +21,9 @@ linters:
     - prealloc
     - revive
     - rowserrcheck
-    - staticcheck
-    - structcheck
     - thelper
     - tparallel
-    - typecheck
     - unconvert
     - unparam
-    - unused
-    - varcheck
     - wastedassign
     - whitespace
