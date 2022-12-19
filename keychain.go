@@ -233,7 +233,6 @@ func (k *keychain) Remove(key string) error {
 	}
 
 	return err
-
 }
 
 func (k *keychain) Keys() ([]string, error) {

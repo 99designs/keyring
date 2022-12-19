@@ -20,10 +20,10 @@ linters:
     - noctx
     - prealloc
     - revive
-    - rowserrcheck
+    # - rowserrcheck
     - thelper
     - tparallel
     - unconvert
     - unparam
-    - wastedassign
+    # - wastedassign
     - whitespace
