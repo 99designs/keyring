@@ -45,7 +45,7 @@ func (k *fileKeyring) resolveDir() (string, error) {
 	stat, err := os.Stat(dir)
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(dir, 0700)
-	} else if err != nil && stat !=nil && !stat.IsDir() {
+	} else if err != nil && stat != nil && !stat.IsDir() {
 		err = fmt.Errorf("%s is a file, not a directory", dir)
 	}
 
