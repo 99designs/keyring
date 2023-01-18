@@ -3,11 +3,24 @@
 
 package keyring
 
+/*
+#cgo LDFLAGS: -framework CoreFoundation -framework Security
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <Security/Security.h>
+*/
+import "C"
 import (
 	"errors"
 	"fmt"
 
 	gokeychain "github.com/99designs/go-keychain"
+)
+
+// Extended error list that gokeychain doesn't catch
+var (
+	// ErrorUserCanceled corresponds to errSecUserCanceled result code
+	ErrorUserCanceled = gokeychain.Error(C.errSecUserCanceled)
 )
 
 type keychain struct {
@@ -58,14 +71,23 @@ func (k *keychain) Get(key string) (Item, error) {
 
 	debugf("Querying keychain for service=%q, account=%q, keychain=%q", k.service, key, k.path)
 	results, err := gokeychain.QueryItem(query)
-	if err == gokeychain.ErrorItemNotFound || len(results) == 0 {
-		debugf("No results found")
-		return Item{}, ErrKeyNotFound
+	if err != nil {
+		switch err {
+		case ErrorUserCanceled:
+			debugf("Keychain access denied")
+			return Item{}, ErrAccessDenied
+		case gokeychain.ErrorItemNotFound:
+			debugf("Item not found in the keyring")
+			return Item{}, ErrKeyNotFound
+		default:
+			debugf("Error: %#v", err)
+			return Item{}, err
+		}
 	}
 
-	if err != nil {
-		debugf("Error: %#v", err)
-		return Item{}, err
+	if len(results) == 0 {
+		debugf("No results found")
+		return Item{}, ErrKeyNotFound
 	}
 
 	item := Item{
