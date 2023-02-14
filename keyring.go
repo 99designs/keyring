@@ -20,6 +20,7 @@ const (
 	WinCredBackend       BackendType = "wincred"
 	FileBackend          BackendType = "file"
 	PassBackend          BackendType = "pass"
+	PassageBackend       BackendType = "passage"
 )
 
 // This order makes sure the OS-specific backends
@@ -34,6 +35,7 @@ var backendOrder = []BackendType{
 	KWalletBackend,
 	KeyCtlBackend,
 	// General
+	PassageBackend,
 	PassBackend,
 	FileBackend,
 }
