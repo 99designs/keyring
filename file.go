@@ -81,13 +81,19 @@ func (k *fileKeyring) Get(key string) (Item, error) {
 		return Item{}, err
 	}
 
-	if err = k.unlock(); err != nil {
-		return Item{}, err
-	}
-
 	payload, _, err := jose.Decode(string(bytes), k.password)
 	if err != nil {
-		return Item{}, err
+		if k.password == "" { // try again after unlocking
+			if err = k.unlock(); err != nil {
+				return Item{}, err
+			}
+			payload, _, err = jose.Decode(string(bytes), k.password)
+			if err != nil {
+				return Item{}, err
+			}
+		} else {
+			return Item{}, err
+		}
 	}
 
 	var decoded Item
@@ -127,15 +133,20 @@ func (k *fileKeyring) Set(i Item) error {
 		return err
 	}
 
-	if err = k.unlock(); err != nil {
-		return err
-	}
-
-	token, err := jose.Encrypt(string(bytes), jose.PBES2_HS256_A128KW, jose.A256GCM, k.password,
-		jose.Headers(map[string]interface{}{
-			"created": time.Now().String(),
-		}))
+	key := jose.Headers(map[string]interface{}{
+		"created": time.Now().String(),
+	})
+	token, err := jose.Encrypt(string(bytes), jose.PBES2_HS256_A128KW, jose.A256GCM, k.password, key)
 	if err != nil {
+		if k.password == "" { // try again after unlocking
+			if err = k.unlock(); err != nil {
+				return err
+			}
+			token, err = jose.Encrypt(string(bytes), jose.PBES2_HS256_A128KW, jose.A256GCM, k.password, key)
+			if err != nil {
+				return err
+			}
+		}
 		return err
 	}
 

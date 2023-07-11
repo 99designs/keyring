@@ -1,6 +1,7 @@
 package keyring
 
 import (
+	"errors"
 	"os"
 	"testing"
 )
@@ -8,7 +9,10 @@ import (
 func TestFileKeyringSetWhenEmpty(t *testing.T) {
 	k := &fileKeyring{
 		dir:          os.TempDir(),
-		passwordFunc: FixedStringPrompt("no more secrets"),
+		passwordFunc: func(_ string) (string, error) {
+			t.Fatal("passwordFunc called")
+			return "", errors.New("passwordFunc called")
+		},
 	}
 	item := Item{Key: "llamas", Data: []byte("llamas are great")}
 
