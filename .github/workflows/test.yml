@@ -16,6 +16,6 @@ jobs:
       - uses: actions/setup-go@v2
         with:
           go-version: 1.19
-      - run: brew install pass gnupg
+      - run: brew install pass gnupg 1password-cli
       - uses: actions/checkout@v2
       - run: go test -race ./...

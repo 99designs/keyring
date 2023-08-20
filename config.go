@@ -55,4 +55,13 @@ type Config struct {
 
 	// WinCredPrefix is a string prefix to prepend to the key name
 	WinCredPrefix string
+
+	// OnePasswordAccount is the name of the 1Password account to use
+	OnePasswordAccount string
+
+	// OnePasswordVault is the name of the 1Password vault to use
+	OnePasswordVault string
+
+	// OnePasswordPrefix is a string prefix to prepend to the key name
+	OnePasswordPrefix string
 }
