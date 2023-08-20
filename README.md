@@ -13,6 +13,7 @@ Currently Keyring supports the following backends
  * [Pass](https://www.passwordstore.org/)
  * [Encrypted file (JWT)](https://datatracker.ietf.org/doc/html/rfc7519)
  * [KeyCtl](https://linux.die.net/man/1/keyctl)
+ * [1Password](https://1password.com)
 
 
 ## Usage
